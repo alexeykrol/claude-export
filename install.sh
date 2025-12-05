@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Claude Export - Installation Script
-# Exports Claude Code dialogs to your project's *dialog/ folder
+# Exports Claude Code dialogs to your project's .dialog/ folder
 #
 
 set -e

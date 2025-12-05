@@ -1,6 +1,6 @@
 /**
  * Exporter - Convert Claude Code JSONL sessions to Markdown
- * Saves dialogs to *dialog/ folder inside the target project
+ * Saves dialogs to .dialog/ folder inside the target project
  */
 /**
  * Get git user info for author attribution
@@ -79,14 +79,14 @@ export declare function getProjectSessions(realProjectPath: string): SessionInfo
 export declare function getAllSessions(): SessionInfo[];
 export declare function toMarkdown(messages: Message[], session: SessionInfo): string;
 /**
- * Export session to markdown file in target project's *dialog/ folder
+ * Export session to markdown file in target project's .dialog/ folder
  * @param session - Session info
- * @param targetProjectPath - Real path to target project (where *dialog/ will be created)
+ * @param targetProjectPath - Real path to target project (where .dialog/ will be created)
  * @returns ExportedSession info
  */
 export declare function exportSession(session: SessionInfo, targetProjectPath: string): ExportedSession;
 /**
- * Get list of exported dialogs in project's *dialog/ folder
+ * Get list of exported dialogs in project's .dialog/ folder
  */
 export declare function getExportedDialogs(targetProjectPath: string): DialogInfo[];
 /**

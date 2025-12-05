@@ -225,7 +225,7 @@ app.get('/api/session/:projectPath/:id', (req: Request, res: Response) => {
   }
 });
 
-// API: Export session to *dialog/
+// API: Export session to .dialog/
 app.post('/api/export/:projectPath/:id', (req: Request, res: Response) => {
   try {
     const { projectPath, id } = req.params;

@@ -55,7 +55,7 @@ const VERSION = '2.1.0';
 function showHelp() {
     console.log(`
 Claude Export v${VERSION}
-Export Claude Code dialogs to project's *dialog/ folder
+Export Claude Code dialogs to project's .dialog/ folder
 
 Usage:
   claude-export <command> [project-path] [options]
@@ -84,7 +84,7 @@ Examples:
   claude-export list                     # Show all sessions
 
 Dialogs are saved to:
-  <project>/*dialog/
+  <project>/.dialog/
 
 Privacy:
   - New dialogs are added to .gitignore by default (private)
@@ -156,7 +156,7 @@ function showTasks(projectPath) {
     console.log('To generate summaries, ask Claude:');
     console.log('  "Process pending summary tasks"');
     console.log('  or');
-    console.log('  "Generate summaries for dialogs in *dialog/.pending/"');
+    console.log('  "Generate summaries for dialogs in .dialog/.pending/"');
 }
 async function runExport(projectPath) {
     console.log(`\nProject: ${projectPath}`);
@@ -195,9 +195,9 @@ async function runInit(projectPath) {
     else {
         console.log(`   Found ${sessions.length} session(s)`);
     }
-    // Step 2: Create *dialog/ folder
+    // Step 2: Create .dialog/ folder
     console.log('');
-    console.log('Step 2: Creating *dialog/ folder...');
+    console.log('Step 2: Creating .dialog/ folder...');
     const dialogFolder = (0, gitignore_1.ensureDialogFolder)(projectPath);
     console.log(`   Created: ${dialogFolder}`);
     // Step 3: Export all sessions

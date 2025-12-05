@@ -1,7 +1,7 @@
 "use strict";
 /**
  * Exporter - Convert Claude Code JSONL sessions to Markdown
- * Saves dialogs to *dialog/ folder inside the target project
+ * Saves dialogs to .dialog/ folder inside the target project
  */
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -320,16 +320,16 @@ function toMarkdown(messages, session) {
     return lines.join('\n');
 }
 /**
- * Export session to markdown file in target project's *dialog/ folder
+ * Export session to markdown file in target project's .dialog/ folder
  * @param session - Session info
- * @param targetProjectPath - Real path to target project (where *dialog/ will be created)
+ * @param targetProjectPath - Real path to target project (where .dialog/ will be created)
  * @returns ExportedSession info
  */
 function exportSession(session, targetProjectPath) {
     const sourcePath = path.join(exports.PROJECTS_DIR, session.projectPath, session.filename);
     const messages = parseSession(sourcePath);
     const markdown = toMarkdown(messages, session);
-    // Ensure *dialog folder exists
+    // Ensure .dialog folder exists
     const dialogFolder = (0, gitignore_1.ensureDialogFolder)(targetProjectPath);
     // Create filename: 2025-12-05_session-abc12345.md
     const shortId = session.id.substring(0, 8);
@@ -351,7 +351,7 @@ function exportSession(session, targetProjectPath) {
     };
 }
 /**
- * Get list of exported dialogs in project's *dialog/ folder
+ * Get list of exported dialogs in project's .dialog/ folder
  */
 function getExportedDialogs(targetProjectPath) {
     const dialogFiles = (0, gitignore_1.getDialogFiles)(targetProjectPath);

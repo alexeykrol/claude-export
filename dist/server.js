@@ -216,7 +216,7 @@ app.get('/api/session/:projectPath/:id', (req, res) => {
         res.status(500).json({ error: String(err) });
     }
 });
-// API: Export session to *dialog/
+// API: Export session to .dialog/
 app.post('/api/export/:projectPath/:id', (req, res) => {
     try {
         const { projectPath, id } = req.params;

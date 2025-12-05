@@ -1,7 +1,7 @@
 {
   "name": "claude-export",
   "version": "2.1.0",
-  "description": "Export Claude Code dialogs to project's *dialog/ folder with Git visibility control",
+  "description": "Export Claude Code dialogs to project's .dialog/ folder with Git visibility control",
   "main": "dist/cli.js",
   "bin": {
     "claude-export": "./dist/cli.js"

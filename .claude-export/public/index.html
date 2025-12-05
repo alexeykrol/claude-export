@@ -644,7 +644,7 @@
         <div class="panel-content" id="dialogPanel">
           <div class="dialog-empty">
             <span>Select a session or dialog to view</span>
-            <span style="font-size: 0.75rem;">Dialogs are saved to *dialog/ folder</span>
+            <span style="font-size: 0.75rem;">Dialogs are saved to .dialog/ folder</span>
           </div>
         </div>
       </div>
@@ -1072,7 +1072,7 @@
         const data = await res.json();
 
         if (data.success) {
-          showToast(`Exported to *dialog/ (private by default)`);
+          showToast(`Exported to .dialog/ (private by default)`);
           loadSessions();
           loadDialogs();
         } else {

@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Claude Export - Installation Script
-# Run this from the .claude-export/ folder inside your project
+# Exports Claude Code dialogs to your project's .dialog/ folder
 #
 
 set -e
@@ -13,10 +13,6 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-# Get script directory (should be .claude-export/)
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
-
 echo ""
 echo -e "${BLUE}════════════════════════════════════════════════════════════${NC}"
 echo -e "${BLUE}  Claude Export - Installer${NC}"
@@ -24,7 +20,7 @@ echo -e "${BLUE}═════════════════════�
 echo ""
 
 # Step 1: Check for Node.js
-echo -e "${YELLOW}Step 1: Checking requirements...${NC}"
+echo -e "${YELLOW}Checking requirements...${NC}"
 echo ""
 
 if ! command -v node &> /dev/null; then
@@ -61,64 +57,58 @@ if [ "$NODE_VERSION" -lt 18 ]; then
 fi
 
 echo -e "  ${GREEN}✓${NC} Node.js $(node -v)"
+
+# Check for npm
+if ! command -v npm &> /dev/null; then
+    echo -e "${RED}npm not found!${NC}"
+    echo "Please install npm and run this script again."
+    exit 1
+fi
+
 echo -e "  ${GREEN}✓${NC} npm $(npm -v)"
 
-# Step 2: Install dependencies
-echo ""
-echo -e "${YELLOW}Step 2: Installing dependencies...${NC}"
-echo ""
-
-cd "$SCRIPT_DIR"
-npm install --silent 2>/dev/null || npm install
-echo -e "  ${GREEN}✓${NC} Dependencies installed"
-
-# Step 3: Run initialization
-echo ""
-echo -e "${YELLOW}Step 3: Initializing Claude Export...${NC}"
-echo ""
-
-node "$SCRIPT_DIR/dist/cli.js" init "$PROJECT_DIR"
-
-# Step 4: Add npm scripts to project's package.json (if exists)
-if [ -f "$PROJECT_DIR/package.json" ]; then
-    echo ""
-    echo -e "${YELLOW}Step 4: Adding npm scripts...${NC}"
-    echo ""
-
-    # Check if scripts already exist
-    if ! grep -q '"dialog:' "$PROJECT_DIR/package.json"; then
-        # Use node to safely modify package.json
-        node -e "
-const fs = require('fs');
-const pkg = JSON.parse(fs.readFileSync('$PROJECT_DIR/package.json', 'utf8'));
-pkg.scripts = pkg.scripts || {};
-pkg.scripts['dialog:watch'] = 'node .claude-export/dist/cli.js watch';
-pkg.scripts['dialog:ui'] = 'node .claude-export/dist/cli.js ui';
-pkg.scripts['dialog:list'] = 'node .claude-export/dist/cli.js list';
-fs.writeFileSync('$PROJECT_DIR/package.json', JSON.stringify(pkg, null, 2) + '\n');
-"
-        echo -e "  ${GREEN}✓${NC} Added scripts to package.json:"
-        echo "      npm run dialog:watch"
-        echo "      npm run dialog:ui"
-        echo "      npm run dialog:list"
-    else
-        echo -e "  ${GREEN}✓${NC} Scripts already exist in package.json"
-    fi
+# Check for Claude Code sessions
+CLAUDE_DIR="$HOME/.claude/projects"
+if [ -d "$CLAUDE_DIR" ]; then
+    SESSION_COUNT=$(find "$CLAUDE_DIR" -name "*.jsonl" 2>/dev/null | wc -l | tr -d ' ')
+    echo -e "  ${GREEN}✓${NC} Claude Code sessions found: $SESSION_COUNT"
+else
+    echo -e "  ${YELLOW}!${NC} No Claude Code sessions found yet"
+    echo "    (Sessions will be exported when you use Claude Code)"
 fi
 
 echo ""
-echo -e "${GREEN}════════════════════════════════════════════════════════════${NC}"
-echo -e "${GREEN}  Installation Complete!${NC}"
-echo -e "${GREEN}════════════════════════════════════════════════════════════${NC}"
+
+# Step 2: Get project path
+PROJECT_PATH="${1:-$(pwd)}"
+echo -e "${YELLOW}Project: ${NC}$PROJECT_PATH"
 echo ""
-echo "Usage:"
+
+# Step 3: Run initialization
+echo -e "${YELLOW}Initializing Claude Export...${NC}"
 echo ""
-echo "  View dialogs in UI:"
-echo "    npm run dialog:ui"
+
+# Check if running from local source (development)
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+if [ -f "$SCRIPT_DIR/dist/cli.js" ]; then
+    # Local development mode
+    node "$SCRIPT_DIR/dist/cli.js" init "$PROJECT_PATH"
+elif command -v claude-export &> /dev/null; then
+    # Globally installed
+    claude-export init "$PROJECT_PATH"
+else
+    # Use npx (downloads from npm)
+    npx claude-export init "$PROJECT_PATH"
+fi
+
 echo ""
-echo "  Start auto-export watcher:"
-echo "    npm run dialog:watch"
+echo -e "${GREEN}Installation complete!${NC}"
 echo ""
-echo "  List all dialogs:"
-echo "    npm run dialog:list"
+echo "Next steps:"
+echo ""
+echo "  Start the watcher (auto-export new dialogs):"
+echo "    claude-export watch"
+echo ""
+echo "  Or open the UI:"
+echo "    claude-export ui"
 echo ""
