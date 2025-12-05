@@ -35,20 +35,18 @@ your-project/
 
 ## Установка
 
-### Вариант 1: Добавить в существующий проект
+### Вариант 1: Клонировать в свой проект как .claude-export
 
 ```bash
-# 1. Скопировать .claude-export/ в ваш проект
-cp -r /path/to/.claude-export ./
-
-# 2. Запустить установку
+cd your-project
+git clone https://github.com/alexeykrol/claude-export.git .claude-export
 .claude-export/install.sh
 ```
 
 ### Вариант 2: Клонировать проект с уже установленной утилитой
 
 ```bash
-git clone <repository>
+git clone <repository-with-claude-export>
 cd <project>
 .claude-export/install.sh
 ```
@@ -202,20 +200,16 @@ node .claude-export/dist/cli.js export    # Разовый экспорт
 
 ---
 
-## Структура файлов утилиты
+## Структура репозитория
 
 ```
-.claude-export/
-├── dist/                    # Скомпилированный TypeScript
-│   ├── cli.js              # Главный CLI
-│   ├── exporter.js         # Экспорт JSONL → Markdown
-│   ├── watcher.js          # Автоматический мониторинг
-│   ├── server.js           # Express сервер для UI
-│   └── gitignore.js        # Управление .gitignore
-├── public/
-│   └── index.html          # Веб-интерфейс
-├── package.json            # Зависимости утилиты
-└── install.sh              # Скрипт установки
+claude-export/               # Клонируется как .claude-export/
+├── src/                     # Исходники TypeScript
+├── dist/                    # Скомпилированный JavaScript
+├── public/                  # Веб-интерфейс
+├── package.json             # Зависимости
+├── install.sh               # Скрипт установки
+└── README.md
 ```
 
 ---
