@@ -1,0 +1,23 @@
+# Dependencies
+node_modules/
+.claude-export/node_modules/
+
+# Build cache
+*.tsbuildinfo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Logs
+*.log
+npm-debug.log*
+
+# Claude dialogs (private by default)
+*dialog/2025-12-05_session-5706c1e6.md

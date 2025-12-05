@@ -1,0 +1,1115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Claude Export</title>
+  <style>
+    :root {
+      --bg-primary: #1a1a2e;
+      --bg-secondary: #16213e;
+      --bg-tertiary: #0f3460;
+      --text-primary: #eee;
+      --text-secondary: #aaa;
+      --text-muted: #666;
+      --accent: #e94560;
+      --accent-dim: #c73e54;
+      --success: #4ade80;
+      --warning: #fbbf24;
+      --border: #333;
+      --user-bg: #1e3a5f;
+      --assistant-bg: #2d2d44;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    header {
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      font-weight: 500;
+      color: var(--accent);
+    }
+
+    .project-selector {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      background: var(--bg-secondary);
+      padding: 10px 16px;
+      border-radius: 8px;
+      margin-bottom: 12px;
+    }
+
+    .project-selector label {
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+    }
+
+    .project-path-input {
+      flex: 1;
+      padding: 8px 12px;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text-primary);
+      font-family: inherit;
+      font-size: 0.85rem;
+    }
+
+    .project-path-input:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+
+    .project-info {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .project-info strong {
+      color: var(--text-secondary);
+    }
+
+    .header-controls {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .search-box {
+      padding: 8px 12px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text-primary);
+      font-family: inherit;
+      font-size: 0.85rem;
+      width: 250px;
+    }
+
+    .search-box:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+
+    .stats {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+
+    .tabs {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 16px;
+    }
+
+    .tab {
+      padding: 8px 16px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 6px 6px 0 0;
+      color: var(--text-secondary);
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 0.85rem;
+      transition: all 0.15s;
+    }
+
+    .tab:hover {
+      background: var(--bg-tertiary);
+    }
+
+    .tab.active {
+      background: var(--bg-tertiary);
+      color: var(--accent);
+      border-bottom-color: var(--bg-tertiary);
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      height: calc(100vh - 220px);
+    }
+
+    .panel {
+      background: var(--bg-secondary);
+      border-radius: 8px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .panel-header {
+      padding: 12px 16px;
+      background: var(--bg-tertiary);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .panel-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    .panel-content {
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    /* Sessions/Dialogs Table */
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .data-table th,
+    .data-table td {
+      padding: 10px 12px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .data-table th {
+      background: var(--bg-tertiary);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      font-weight: 600;
+      position: sticky;
+      top: 0;
+    }
+
+    .data-table tbody tr {
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .data-table tbody tr:hover {
+      background: var(--bg-tertiary);
+    }
+
+    .data-table tbody tr.selected {
+      background: var(--user-bg);
+    }
+
+    .session-date {
+      font-size: 0.8rem;
+      white-space: nowrap;
+    }
+
+    .session-summary {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      max-width: 280px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .session-meta {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+
+    .export-status {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      margin-right: 6px;
+    }
+
+    .export-status.exported {
+      background: var(--success);
+    }
+
+    .export-status.not-exported {
+      background: var(--warning);
+    }
+
+    /* Public Toggle Checkbox */
+    .public-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .public-checkbox {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+      accent-color: var(--success);
+    }
+
+    .public-label {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      margin-left: 4px;
+    }
+
+    .visibility-badge {
+      font-size: 0.7rem;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-weight: 500;
+    }
+
+    .visibility-badge.public {
+      background: rgba(74, 222, 128, 0.2);
+      color: var(--success);
+    }
+
+    .visibility-badge.private {
+      background: rgba(251, 191, 36, 0.2);
+      color: var(--warning);
+    }
+
+    /* Make Summary Button */
+    .btn-make {
+      padding: 3px 8px;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-family: inherit;
+      font-size: 0.7rem;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .btn-make:hover {
+      background: var(--accent-dim);
+    }
+
+    .btn-make.pending {
+      background: var(--warning);
+      color: var(--bg-primary);
+      cursor: wait;
+    }
+
+    .pending-badge {
+      font-size: 0.7rem;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: rgba(251, 191, 36, 0.2);
+      color: var(--warning);
+    }
+
+    /* Dialog View */
+    .dialog-view {
+      padding: 16px;
+    }
+
+    .dialog-empty {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .message {
+      margin-bottom: 16px;
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+    }
+
+    .message.user {
+      background: var(--user-bg);
+      border-left: 3px solid var(--accent);
+    }
+
+    .message.assistant {
+      background: var(--assistant-bg);
+      border-left: 3px solid var(--success);
+    }
+
+    .message-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      font-size: 0.75rem;
+    }
+
+    .message-role {
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .message.user .message-role {
+      color: var(--accent);
+    }
+
+    .message.assistant .message-role {
+      color: var(--success);
+    }
+
+    .message-time {
+      color: var(--text-muted);
+    }
+
+    .message-content {
+      white-space: pre-wrap;
+      word-break: break-word;
+      line-height: 1.5;
+    }
+
+    .message-content code {
+      background: rgba(0,0,0,0.3);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.8rem;
+    }
+
+    .message-content pre {
+      background: rgba(0,0,0,0.3);
+      padding: 12px;
+      border-radius: 6px;
+      overflow-x: auto;
+      margin: 8px 0;
+    }
+
+    /* Buttons */
+    .btn {
+      padding: 6px 12px;
+      border: none;
+      border-radius: 4px;
+      font-family: inherit;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--accent-dim);
+    }
+
+    .btn-secondary {
+      background: var(--bg-tertiary);
+      color: var(--text-primary);
+      border: 1px solid var(--border);
+    }
+
+    .btn-secondary:hover {
+      background: var(--border);
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 8px;
+    }
+
+    /* Loading */
+    .loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px;
+      color: var(--text-muted);
+    }
+
+    .spinner {
+      width: 20px;
+      height: 20px;
+      border: 2px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin-right: 10px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      padding: 12px 20px;
+      background: var(--success);
+      color: var(--bg-primary);
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.3s ease;
+      z-index: 1000;
+    }
+
+    .toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    .toast.error {
+      background: var(--accent);
+    }
+
+    /* Summaries */
+    .session-summaries {
+      padding: 12px 16px;
+      background: var(--bg-tertiary);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .session-summaries h3 {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    .session-summaries ul {
+      list-style: none;
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+    }
+
+    .session-summaries li {
+      padding: 2px 0;
+    }
+
+    .session-summaries li::before {
+      content: "-> ";
+      color: var(--accent);
+    }
+
+    .session-info {
+      padding: 12px 16px;
+      background: var(--bg-tertiary);
+      border-bottom: 1px solid var(--border);
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+    }
+
+    .session-info strong {
+      color: var(--text-primary);
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--bg-secondary);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--text-muted);
+    }
+
+    /* Responsive */
+    @media (max-width: 1200px) {
+      .layout {
+        grid-template-columns: 1fr;
+        height: auto;
+      }
+
+      .panel {
+        max-height: 50vh;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .header-controls {
+        flex-wrap: wrap;
+      }
+
+      .search-box {
+        width: 100%;
+      }
+
+      .project-selector {
+        flex-wrap: wrap;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="header-top">
+        <h1>Claude Export</h1>
+        <div class="header-controls">
+          <input type="text" class="search-box" id="searchBox" placeholder="Search dialogs...">
+          <span class="stats" id="stats">Loading...</span>
+        </div>
+      </div>
+
+      <div class="project-selector">
+        <label>Project:</label>
+        <input type="text" class="project-path-input" id="projectPath" placeholder="/path/to/project">
+        <button class="btn btn-primary" onclick="setProject()">Open</button>
+        <span class="project-info" id="projectInfo"></span>
+      </div>
+
+      <div class="tabs">
+        <button class="tab active" data-tab="sessions" onclick="switchTab('sessions')">
+          Sessions
+        </button>
+        <button class="tab" data-tab="dialogs" onclick="switchTab('dialogs')">
+          Exported Dialogs
+        </button>
+      </div>
+    </header>
+
+    <div class="layout">
+      <!-- Left Panel: Sessions or Dialogs -->
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title" id="leftPanelTitle">Sessions</span>
+          <button class="btn btn-secondary" onclick="refreshData()">Refresh</button>
+        </div>
+        <div class="panel-content" id="leftPanel">
+          <div class="loading">
+            <div class="spinner"></div>
+            Loading...
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Panel: Dialog Viewer -->
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title" id="dialogTitle">Dialog</span>
+          <div class="btn-group">
+            <button class="btn btn-secondary" id="btnExport" onclick="exportSession()" disabled>
+              Export
+            </button>
+            <button class="btn btn-primary" id="btnDownload" onclick="downloadSession()" disabled>
+              Download .md
+            </button>
+          </div>
+        </div>
+        <div id="sessionInfo"></div>
+        <div id="dialogSummaries"></div>
+        <div class="panel-content" id="dialogPanel">
+          <div class="dialog-empty">
+            <span>Select a session or dialog to view</span>
+            <span style="font-size: 0.75rem;">Dialogs are saved to *dialog/ folder</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    let currentTab = 'sessions';
+    let sessions = [];
+    let dialogs = [];
+    let filteredItems = [];
+    let selectedSession = null;
+    let projectInfo = null;
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadProject();
+      document.getElementById('searchBox').addEventListener('input', filterItems);
+      document.getElementById('projectPath').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') setProject();
+      });
+    });
+
+    async function loadProject() {
+      try {
+        const res = await fetch('/api/project');
+        projectInfo = await res.json();
+
+        document.getElementById('projectPath').value = projectInfo.path;
+        document.getElementById('projectInfo').textContent =
+          `${projectInfo.sessionCount} sessions, ${projectInfo.dialogCount} dialogs`;
+
+        loadSessions();
+      } catch (err) {
+        showToast('Error loading project: ' + err.message, true);
+      }
+    }
+
+    async function setProject() {
+      const path = document.getElementById('projectPath').value.trim();
+      if (!path) return;
+
+      try {
+        const res = await fetch('/api/project', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ path })
+        });
+
+        const data = await res.json();
+
+        if (data.error) {
+          showToast(data.error, true);
+          return;
+        }
+
+        projectInfo = data;
+        document.getElementById('projectInfo').textContent =
+          `${data.sessionCount} sessions, ${data.dialogCount} dialogs`;
+
+        showToast('Project loaded: ' + data.name);
+        refreshData();
+      } catch (err) {
+        showToast('Error: ' + err.message, true);
+      }
+    }
+
+    function switchTab(tab) {
+      currentTab = tab;
+      document.querySelectorAll('.tab').forEach(t => {
+        t.classList.toggle('active', t.dataset.tab === tab);
+      });
+
+      document.getElementById('leftPanelTitle').textContent =
+        tab === 'sessions' ? 'Sessions' : 'Exported Dialogs';
+
+      refreshData();
+    }
+
+    function refreshData() {
+      if (currentTab === 'sessions') {
+        loadSessions();
+      } else {
+        loadDialogs();
+      }
+    }
+
+    async function loadSessions() {
+      const panel = document.getElementById('leftPanel');
+      panel.innerHTML = '<div class="loading"><div class="spinner"></div>Loading sessions...</div>';
+
+      try {
+        const res = await fetch('/api/sessions');
+        const data = await res.json();
+        sessions = data.sessions;
+        filteredItems = sessions;
+
+        document.getElementById('stats').textContent =
+          `${data.total} sessions, ${data.exported} exported`;
+
+        renderSessions();
+      } catch (err) {
+        panel.innerHTML = `<div class="dialog-empty">Error: ${err.message}</div>`;
+      }
+    }
+
+    async function loadDialogs() {
+      const panel = document.getElementById('leftPanel');
+      panel.innerHTML = '<div class="loading"><div class="spinner"></div>Loading dialogs...</div>';
+
+      try {
+        const res = await fetch('/api/dialogs');
+        const data = await res.json();
+        dialogs = data.dialogs;
+        filteredItems = dialogs;
+
+        document.getElementById('stats').textContent =
+          `${data.total} dialogs (${data.public} public, ${data.private} private)`;
+
+        renderDialogs();
+      } catch (err) {
+        panel.innerHTML = `<div class="dialog-empty">Error: ${err.message}</div>`;
+      }
+    }
+
+    function filterItems() {
+      const query = document.getElementById('searchBox').value.toLowerCase();
+
+      if (currentTab === 'sessions') {
+        filteredItems = sessions.filter(s => {
+          if (query) {
+            const inSummary = s.summaries.some(sum => sum.toLowerCase().includes(query));
+            if (!inSummary) return false;
+          }
+          return true;
+        });
+        renderSessions();
+      } else {
+        filteredItems = dialogs.filter(d => {
+          if (query) {
+            return d.filename.toLowerCase().includes(query);
+          }
+          return true;
+        });
+        renderDialogs();
+      }
+    }
+
+    function renderSessions() {
+      const panel = document.getElementById('leftPanel');
+
+      if (filteredItems.length === 0) {
+        panel.innerHTML = '<div class="dialog-empty">No sessions found</div>';
+        return;
+      }
+
+      const table = document.createElement('table');
+      table.className = 'data-table';
+      table.innerHTML = `
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Summary</th>
+            <th>Info</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${filteredItems.map(s => `
+            <tr data-id="${s.id}" data-project="${s.projectPath}"
+                onclick="selectSession('${s.projectPath}', '${s.id}')"
+                class="${selectedSession?.id === s.id ? 'selected' : ''}">
+              <td class="session-date">
+                <span class="export-status ${s.isExported ? 'exported' : 'not-exported'}"
+                      title="${s.isExported ? 'Exported' : 'Not exported'}"></span>
+                ${s.date}
+              </td>
+              <td class="session-summary" title="${escapeHtml(s.summaries[0] || 'No summary')}">
+                ${escapeHtml(s.summaries[0] || 'No summary')}
+              </td>
+              <td class="session-meta">${s.messageCount} msgs, ${s.size}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      `;
+
+      panel.innerHTML = '';
+      panel.appendChild(table);
+    }
+
+    function renderDialogs() {
+      const panel = document.getElementById('leftPanel');
+
+      if (filteredItems.length === 0) {
+        panel.innerHTML = '<div class="dialog-empty">No exported dialogs. Export sessions first.</div>';
+        return;
+      }
+
+      const table = document.createElement('table');
+      table.className = 'data-table';
+      table.innerHTML = `
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Summary</th>
+            <th>Git</th>
+            <th>Size</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${filteredItems.map(d => `
+            <tr data-filename="${d.filename}"
+                onclick="selectDialog('${d.filename}')">
+              <td class="session-date">${d.date}</td>
+              <td class="session-summary">
+                ${d.summary
+                  ? `<span title="${escapeHtml(d.summary)}">${escapeHtml(d.summary.substring(0, 40))}${d.summary.length > 40 ? '...' : ''}</span>`
+                  : `<span class="pending-badge" title="Summary will be generated automatically">Pending...</span>`
+                }
+              </td>
+              <td class="public-toggle" onclick="event.stopPropagation()">
+                <input type="checkbox" class="public-checkbox"
+                       ${d.isPublic ? 'checked' : ''}
+                       onchange="toggleVisibility('${d.filename}', this.checked)"
+                       title="${d.isPublic ? 'Public (will be committed)' : 'Private (in .gitignore)'}">
+                <span class="visibility-badge ${d.isPublic ? 'public' : 'private'}">
+                  ${d.isPublic ? 'Public' : 'Private'}
+                </span>
+              </td>
+              <td class="session-meta">${d.size}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      `;
+
+      panel.innerHTML = '';
+      panel.appendChild(table);
+    }
+
+    async function selectSession(projectPath, id) {
+      document.querySelectorAll('.data-table tbody tr').forEach(tr => {
+        tr.classList.toggle('selected',
+          tr.dataset.id === id && tr.dataset.project === projectPath);
+      });
+
+      selectedSession = { projectPath, id };
+      document.getElementById('btnDownload').disabled = false;
+      document.getElementById('btnExport').disabled = false;
+
+      const panel = document.getElementById('dialogPanel');
+      const summariesDiv = document.getElementById('dialogSummaries');
+      const infoDiv = document.getElementById('sessionInfo');
+
+      panel.innerHTML = '<div class="loading"><div class="spinner"></div>Loading dialog...</div>';
+      summariesDiv.innerHTML = '';
+      infoDiv.innerHTML = '';
+
+      try {
+        const res = await fetch(`/api/session/${projectPath}/${id}`);
+        const data = await res.json();
+
+        const session = sessions.find(s => s.id === id && s.projectPath === projectPath);
+
+        document.getElementById('dialogTitle').textContent = `Dialog (${data.messageCount} messages)`;
+
+        if (session) {
+          infoDiv.innerHTML = `
+            <div class="session-info">
+              <strong>Date:</strong> ${session.date} |
+              <strong>Size:</strong> ${session.size} |
+              <strong>Status:</strong> ${session.isExported ? 'Exported' : 'Not exported'}
+            </div>
+          `;
+        }
+
+        if (data.summaries && data.summaries.length > 0) {
+          summariesDiv.innerHTML = `
+            <div class="session-summaries">
+              <h3>Session Summaries</h3>
+              <ul>
+                ${data.summaries.map(s => `<li>${escapeHtml(s)}</li>`).join('')}
+              </ul>
+            </div>
+          `;
+        }
+
+        if (data.dialog.length === 0) {
+          panel.innerHTML = '<div class="dialog-empty">No messages in this session</div>';
+          return;
+        }
+
+        panel.innerHTML = '<div class="dialog-view"></div>';
+        const view = panel.querySelector('.dialog-view');
+
+        data.dialog.forEach(msg => {
+          const div = document.createElement('div');
+          div.className = `message ${msg.role}`;
+          div.innerHTML = `
+            <div class="message-header">
+              <span class="message-role">${msg.role === 'user' ? 'User' : 'Claude'}</span>
+              <span class="message-time">${msg.time}</span>
+            </div>
+            <div class="message-content">${formatContent(msg.content)}</div>
+          `;
+          view.appendChild(div);
+        });
+
+      } catch (err) {
+        panel.innerHTML = `<div class="dialog-empty">Error: ${err.message}</div>`;
+      }
+    }
+
+    async function selectDialog(filename) {
+      document.querySelectorAll('.data-table tbody tr').forEach(tr => {
+        tr.classList.toggle('selected', tr.dataset.filename === filename);
+      });
+
+      const panel = document.getElementById('dialogPanel');
+      const summariesDiv = document.getElementById('dialogSummaries');
+      const infoDiv = document.getElementById('sessionInfo');
+
+      panel.innerHTML = '<div class="loading"><div class="spinner"></div>Loading...</div>';
+      summariesDiv.innerHTML = '';
+      infoDiv.innerHTML = '';
+
+      document.getElementById('btnDownload').disabled = true;
+      document.getElementById('btnExport').disabled = true;
+
+      try {
+        const res = await fetch(`/api/dialog/${filename}`);
+        const data = await res.json();
+
+        document.getElementById('dialogTitle').textContent = filename;
+
+        infoDiv.innerHTML = `
+          <div class="session-info">
+            <strong>Path:</strong> ${data.path} |
+            <strong>Git:</strong> ${data.isPublic ? 'Public' : 'Private (.gitignore)'}
+          </div>
+        `;
+
+        panel.innerHTML = `<div class="dialog-view"><pre style="white-space: pre-wrap; font-size: 0.8rem;">${escapeHtml(data.content)}</pre></div>`;
+
+      } catch (err) {
+        panel.innerHTML = `<div class="dialog-empty">Error: ${err.message}</div>`;
+      }
+    }
+
+    async function toggleVisibility(filename, makePublic) {
+      try {
+        const res = await fetch(`/api/dialog/visibility/${filename}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ isPublic: makePublic })
+        });
+
+        const data = await res.json();
+
+        if (data.success) {
+          // Update local state
+          const dialog = dialogs.find(d => d.filename === filename);
+          if (dialog) {
+            dialog.isPublic = data.isPublic;
+          }
+
+          // Update badge
+          const row = document.querySelector(`tr[data-filename="${filename}"]`);
+          if (row) {
+            const badge = row.querySelector('.visibility-badge');
+            badge.className = `visibility-badge ${data.isPublic ? 'public' : 'private'}`;
+            badge.textContent = data.isPublic ? 'Public' : 'Private';
+          }
+
+          showToast(`${filename} is now ${data.isPublic ? 'public (will be committed)' : 'private (in .gitignore)'}`);
+        }
+      } catch (err) {
+        showToast('Error: ' + err.message, true);
+        loadDialogs(); // Refresh to sync state
+      }
+    }
+
+    async function requestSummary(filename) {
+      try {
+        // Update button state
+        const btn = document.querySelector(`tr[data-filename="${filename}"] .btn-make`);
+        if (btn) {
+          btn.textContent = 'Pending...';
+          btn.className = 'btn-make pending';
+          btn.disabled = true;
+        }
+
+        const res = await fetch(`/api/summary/request/${filename}`, {
+          method: 'POST'
+        });
+        const data = await res.json();
+
+        if (data.alreadyExists) {
+          showToast('Summary already exists');
+          loadDialogs();
+        } else if (data.success) {
+          showToast('Task created. Say to Claude: "Process pending summary tasks"');
+        } else {
+          showToast('Error: ' + data.error, true);
+          loadDialogs();
+        }
+      } catch (err) {
+        showToast('Error: ' + err.message, true);
+        loadDialogs();
+      }
+    }
+
+    async function downloadSession() {
+      if (!selectedSession) return;
+      window.location.href = `/api/download/${selectedSession.projectPath}/${selectedSession.id}`;
+    }
+
+    async function exportSession() {
+      if (!selectedSession) return;
+
+      try {
+        const res = await fetch(
+          `/api/export/${selectedSession.projectPath}/${selectedSession.id}`,
+          { method: 'POST' }
+        );
+        const data = await res.json();
+
+        if (data.success) {
+          showToast(`Exported to *dialog/ (private by default)`);
+          loadSessions();
+          loadDialogs();
+        } else {
+          showToast(`Error: ${data.error}`, true);
+        }
+      } catch (err) {
+        showToast(`Error: ${err.message}`, true);
+      }
+    }
+
+    function showToast(message, isError = false) {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.className = 'toast show' + (isError ? ' error' : '');
+      setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    function formatContent(text) {
+      let html = escapeHtml(text);
+
+      // Code blocks
+      html = html.replace(/```(\w*)\n([\s\S]*?)```/g, '<pre><code>$2</code></pre>');
+
+      // Inline code
+      html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
+
+      // Bold
+      html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+
+      return html;
+    }
+  </script>
+</body>
+</html>
