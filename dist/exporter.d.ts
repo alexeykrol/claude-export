@@ -41,6 +41,7 @@ export interface ExportedSession {
     date: string;
     summaries: string[];
     messageCount: number;
+    filename: string;
     markdownPath: string;
     exportedAt: string;
     isPublic: boolean;

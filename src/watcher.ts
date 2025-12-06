@@ -16,7 +16,8 @@ import {
   parseSession,
   SessionInfo,
   getProjectName,
-  getSummary
+  getSummary,
+  formatTimestamp
 } from './exporter';
 import { getDialogFolder, ensureDialogFolder } from './gitignore';
 
@@ -205,7 +206,7 @@ export class SessionWatcher {
         filename,
         projectName: getProjectName(projectDir),
         projectPath: projectDir,
-        date: new Date(firstTimestamp).toLocaleDateString('ru-RU'),
+        date: formatTimestamp(firstTimestamp),
         dateISO: new Date(firstTimestamp).toISOString().split('T')[0],
         size: `${(stat.size / 1024).toFixed(0)}KB`,
         sizeBytes: stat.size,

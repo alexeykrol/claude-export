@@ -29,8 +29,10 @@ import {
   setVisibility,
   isPublic
 } from './gitignore';
+import { SessionWatcher } from './watcher';
 
 let currentProjectPath: string = process.cwd();
+let watcher: SessionWatcher | null = null;
 
 const app: Application = express();
 
@@ -101,12 +103,17 @@ app.get('/api/sessions', (req: Request, res: Response) => {
   try {
     const sessions = getProjectSessions(currentProjectPath);
 
-    // Add export status to each session
-    const sessionsWithStatus = sessions.map(s => ({
-      ...s,
-      isExported: isSessionExported(s.id, currentProjectPath),
-      exportPath: getExportedPath(s.id, currentProjectPath)
-    }));
+    // Add export status and visibility to each session
+    const sessionsWithStatus = sessions.map(s => {
+      const exported = isSessionExported(s.id, currentProjectPath);
+      const exportPath = getExportedPath(s.id, currentProjectPath);
+      return {
+        ...s,
+        isExported: exported,
+        exportPath,
+        isPublic: exported && exportPath ? isPublic(exportPath, currentProjectPath) : false
+      };
+    });
 
     res.json({
       sessions: sessionsWithStatus,
@@ -388,14 +395,19 @@ export function startServer(port: number = 3333, projectPath?: string): void {
 
   const dialogFolder = getDialogFolder(currentProjectPath);
 
+  // Start watcher for automatic export
+  watcher = new SessionWatcher(currentProjectPath);
+  watcher.start();
+
   app.listen(port, () => {
     console.log('');
     console.log('═'.repeat(60));
-    console.log('  Claude Export UI');
+    console.log('  Claude Export UI + Auto-Watch');
     console.log('═'.repeat(60));
     console.log(`  URL:      http://localhost:${port}`);
     console.log(`  Project:  ${currentProjectPath}`);
     console.log(`  Dialogs:  ${dialogFolder}`);
+    console.log(`  Watch:    Active (auto-export enabled)`);
     console.log('═'.repeat(60));
     console.log('');
     console.log('Press Ctrl+C to stop');
@@ -411,6 +423,15 @@ export function startServer(port: number = 3333, projectPath?: string): void {
         console.log(`[CLAUDE_TASK] Generate summary for: ${d.filePath}`);
       });
     }
+  });
+
+  // Graceful shutdown
+  process.on('SIGINT', () => {
+    console.log('\nStopping watcher...');
+    if (watcher) {
+      watcher.stop();
+    }
+    process.exit(0);
   });
 }
 

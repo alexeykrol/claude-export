@@ -46,7 +46,9 @@ const path = __importStar(require("path"));
 const fs = __importStar(require("fs"));
 const exporter_1 = require("./exporter");
 const gitignore_1 = require("./gitignore");
+const watcher_1 = require("./watcher");
 let currentProjectPath = process.cwd();
+let watcher = null;
 const app = (0, express_1.default)();
 app.use(express_1.default.json());
 // Serve static files
@@ -104,12 +106,17 @@ app.post('/api/project', (req, res) => {
 app.get('/api/sessions', (req, res) => {
     try {
         const sessions = (0, exporter_1.getProjectSessions)(currentProjectPath);
-        // Add export status to each session
-        const sessionsWithStatus = sessions.map(s => ({
-            ...s,
-            isExported: (0, exporter_1.isSessionExported)(s.id, currentProjectPath),
-            exportPath: (0, exporter_1.getExportedPath)(s.id, currentProjectPath)
-        }));
+        // Add export status and visibility to each session
+        const sessionsWithStatus = sessions.map(s => {
+            const exported = (0, exporter_1.isSessionExported)(s.id, currentProjectPath);
+            const exportPath = (0, exporter_1.getExportedPath)(s.id, currentProjectPath);
+            return {
+                ...s,
+                isExported: exported,
+                exportPath,
+                isPublic: exported && exportPath ? (0, gitignore_1.isPublic)(exportPath, currentProjectPath) : false
+            };
+        });
         res.json({
             sessions: sessionsWithStatus,
             total: sessions.length,
@@ -353,14 +360,18 @@ function startServer(port = 3333, projectPath) {
         currentProjectPath = path.resolve(projectPath);
     }
     const dialogFolder = (0, gitignore_1.getDialogFolder)(currentProjectPath);
+    // Start watcher for automatic export
+    watcher = new watcher_1.SessionWatcher(currentProjectPath);
+    watcher.start();
     app.listen(port, () => {
         console.log('');
         console.log('═'.repeat(60));
-        console.log('  Claude Export UI');
+        console.log('  Claude Export UI + Auto-Watch');
         console.log('═'.repeat(60));
         console.log(`  URL:      http://localhost:${port}`);
         console.log(`  Project:  ${currentProjectPath}`);
         console.log(`  Dialogs:  ${dialogFolder}`);
+        console.log(`  Watch:    Active (auto-export enabled)`);
         console.log('═'.repeat(60));
         console.log('');
         console.log('Press Ctrl+C to stop');
@@ -374,6 +385,14 @@ function startServer(port = 3333, projectPath) {
                 console.log(`[CLAUDE_TASK] Generate summary for: ${d.filePath}`);
             });
         }
+    });
+    // Graceful shutdown
+    process.on('SIGINT', () => {
+        console.log('\nStopping watcher...');
+        if (watcher) {
+            watcher.stop();
+        }
+        process.exit(0);
     });
 }
 exports.default = app;

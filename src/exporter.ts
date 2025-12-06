@@ -60,6 +60,7 @@ export interface ExportedSession {
   date: string;
   summaries: string[];
   messageCount: number;
+  filename: string;
   markdownPath: string;
   exportedAt: string;
   isPublic: boolean;
@@ -218,7 +219,7 @@ export function getProjectSessions(realProjectPath: string): SessionInfo[] {
         filename,
         projectName: getProjectName(claudeProjectDir),
         projectPath: claudeProjectDir,
-        date: formatDate(firstTimestamp),
+        date: formatTimestamp(firstTimestamp),
         dateISO: formatDateISO(firstTimestamp),
         size: `${(stat.size / 1024).toFixed(0)}KB`,
         sizeBytes: stat.size,
@@ -281,7 +282,7 @@ export function getAllSessions(): SessionInfo[] {
           filename,
           projectName: getProjectName(projectDir),
           projectPath: projectDir,
-          date: formatDate(firstTimestamp),
+          date: formatTimestamp(firstTimestamp),
           dateISO: formatDateISO(firstTimestamp),
           size: `${(stat.size / 1024).toFixed(0)}KB`,
           sizeBytes: stat.size,
@@ -391,6 +392,7 @@ export function exportSession(session: SessionInfo, targetProjectPath: string): 
     date: session.date,
     summaries: session.summaries,
     messageCount: session.messageCount,
+    filename,
     markdownPath: outputPath,
     exportedAt: new Date().toISOString(),
     isPublic: false // Private by default

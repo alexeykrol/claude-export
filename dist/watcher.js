@@ -191,7 +191,7 @@ class SessionWatcher {
                 filename,
                 projectName: (0, exporter_1.getProjectName)(projectDir),
                 projectPath: projectDir,
-                date: new Date(firstTimestamp).toLocaleDateString('ru-RU'),
+                date: (0, exporter_1.formatTimestamp)(firstTimestamp),
                 dateISO: new Date(firstTimestamp).toISOString().split('T')[0],
                 size: `${(stat.size / 1024).toFixed(0)}KB`,
                 sizeBytes: stat.size,
