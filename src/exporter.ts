@@ -486,6 +486,8 @@ export function exportNewSessions(targetProjectPath: string): ExportedSession[] 
 // Summary management
 
 const SUMMARY_PATTERN = /^<!-- SUMMARY: (.*?) -->$/m;
+const SUMMARY_SHORT_PATTERN = /^<!-- SUMMARY_SHORT: (.*?) -->$/m;
+const SUMMARY_FULL_PATTERN = /^<!-- SUMMARY_FULL: (.*?) -->$/m;
 const SUMMARIES_SECTION_PATTERN = /## Summaries\n+(?:- (.+)(?:\n|$))/;
 const PENDING_FOLDER = '.pending';
 
@@ -522,6 +524,34 @@ export function hasSummary(filePath: string): boolean {
  */
 export function getSummary(filePath: string): string | null {
   const content = fs.readFileSync(filePath, 'utf-8');
+  return extractSummary(content);
+}
+
+/**
+ * Get short summary from dialog file
+ * Falls back to regular summary if SHORT not found
+ */
+export function getSummaryShort(filePath: string): string | null {
+  const content = fs.readFileSync(filePath, 'utf-8');
+  const shortMatch = content.match(SUMMARY_SHORT_PATTERN);
+  if (shortMatch) {
+    return shortMatch[1];
+  }
+  // Fallback to regular summary
+  return extractSummary(content);
+}
+
+/**
+ * Get full summary from dialog file
+ * Falls back to regular summary if FULL not found
+ */
+export function getSummaryFull(filePath: string): string | null {
+  const content = fs.readFileSync(filePath, 'utf-8');
+  const fullMatch = content.match(SUMMARY_FULL_PATTERN);
+  if (fullMatch) {
+    return fullMatch[1];
+  }
+  // Fallback to regular summary
   return extractSummary(content);
 }
 
@@ -650,7 +680,7 @@ export function extractSessionDateTime(content: string): Date | null {
 /**
  * Get dialog info with summary
  */
-export function getDialogWithSummary(filePath: string, projectPath: string): DialogInfo & { summary: string | null } {
+export function getDialogWithSummary(filePath: string, projectPath: string): DialogInfo & { summary: string | null; summaryShort: string | null; summaryFull: string | null } {
   const stat = fs.statSync(filePath);
   const filename = path.basename(filePath);
   const content = fs.readFileSync(filePath, 'utf-8');
@@ -658,6 +688,13 @@ export function getDialogWithSummary(filePath: string, projectPath: string): Dia
   const match = filename.match(/^(\d{4}-\d{2}-\d{2})_session-([a-f0-9]+)\.md$/);
   const date = match ? match[1] : 'Unknown';
   const sessionId = match ? match[2] : filename;
+
+  // Extract both short and full summaries
+  const shortMatch = content.match(SUMMARY_SHORT_PATTERN);
+  const fullMatch = content.match(SUMMARY_FULL_PATTERN);
+
+  const summaryShort = shortMatch ? shortMatch[1] : extractSummary(content);
+  const summaryFull = fullMatch ? fullMatch[1] : extractSummary(content);
 
   return {
     filename,
@@ -669,14 +706,16 @@ export function getDialogWithSummary(filePath: string, projectPath: string): Dia
     sizeBytes: stat.size,
     lastModified: stat.mtime,
     sessionDateTime: extractSessionDateTime(content),
-    summary: extractSummary(content)
+    summary: summaryShort, // For backwards compatibility, use short version
+    summaryShort,
+    summaryFull
   };
 }
 
 /**
  * Get all dialogs with summaries
  */
-export function getExportedDialogsWithSummaries(targetProjectPath: string): Array<DialogInfo & { summary: string | null }> {
+export function getExportedDialogsWithSummaries(targetProjectPath: string): Array<DialogInfo & { summary: string | null; summaryShort: string | null; summaryFull: string | null }> {
   const dialogFiles = getDialogFiles(targetProjectPath);
 
   return dialogFiles.map(filePath => getDialogWithSummary(filePath, targetProjectPath));

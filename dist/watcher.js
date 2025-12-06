@@ -50,7 +50,7 @@ const pendingExports = new Map();
 const DEBOUNCE_MS = 2000; // Wait 2 seconds after last change
 // Pending summary generation (longer debounce - wait for dialog to "close")
 const pendingSummaries = new Map();
-const SUMMARY_DEBOUNCE_MS = 30000; // Wait 30 seconds of inactivity before generating summary
+const SUMMARY_DEBOUNCE_MS = 1800000; // Wait 30 minutes of inactivity before generating summary
 // Track active session per project to detect session closure
 const activeSessionPerProject = new Map(); // projectDir -> sessionId
 // Track file sizes to detect actual content changes
@@ -80,19 +80,38 @@ function requestSummary(dialogPath, verbose = false, isFinal = false) {
     const prompt = isFinal
         ? `Прочитай файл ${dialogPath} — это завершённый диалог с Claude Code.
 
-Создай ФИНАЛЬНОЕ детальное саммари на русском языке:
-1. Главная цель/задача диалога (1 предложение)
-2. Что было сделано (2-3 ключевых результата)
-3. Итоговый статус: завершено/частично/отложено
+Создай ДВА саммари на русском языке:
 
-Формат (3-5 предложений, информативно и полезно для быстрого понимания сути).
+1. КОРОТКОЕ (для списка диалогов) - одно предложение:
+   - Суть изменений или проблемы
+   - Конкретные файлы/модули если есть
+   Пример: "Исправлена логика чекбоксов visibility в index.html"
+
+2. ПОЛНОЕ (для детального просмотра) - 3-5 предложений:
+   - Главная цель/задача
+   - Что конкретно сделано (файлы, методы, изменения)
+   - Технические решения
+   - Итоговый статус
 
 Затем используй Edit чтобы ЗАМЕНИТЬ существующее саммари в начале файла в формате:
-<!-- SUMMARY: твоё детальное саммари -->`
-        : `Прочитай файл ${dialogPath} и создай краткое саммари диалога (1-2 предложения на русском). Затем используй Edit чтобы добавить саммари в начало файла в формате: <!-- SUMMARY: твоё саммари -->`;
+<!-- SUMMARY_SHORT: короткое саммари -->
+<!-- SUMMARY_FULL: полное детальное саммари -->`
+        : `Прочитай файл ${dialogPath}.
+
+Создай ДВА саммари на русском:
+
+1. КОРОТКОЕ - одно предложение с конкретикой (файлы/функции/модули)
+   Пример: "Добавлен watcher для автоэкспорта диалогов в .dialog/"
+
+2. ПОЛНОЕ - 2-3 предложения с деталями и техническими решениями
+
+Затем используй Edit чтобы добавить саммари в начало файла в формате:
+<!-- SUMMARY_SHORT: короткое -->
+<!-- SUMMARY_FULL: полное -->`;
     const claude = (0, child_process_1.spawn)('claude', [
         '-p',
         '--dangerously-skip-permissions',
+        '--model', 'haiku',
         '--tools', 'Read,Edit',
         prompt
     ], {

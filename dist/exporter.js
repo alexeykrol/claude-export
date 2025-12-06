@@ -58,6 +58,8 @@ exports.exportNewSessions = exportNewSessions;
 exports.extractSummary = extractSummary;
 exports.hasSummary = hasSummary;
 exports.getSummary = getSummary;
+exports.getSummaryShort = getSummaryShort;
+exports.getSummaryFull = getSummaryFull;
 exports.setSummary = setSummary;
 exports.getPendingFolder = getPendingFolder;
 exports.ensurePendingFolder = ensurePendingFolder;
@@ -424,6 +426,8 @@ function exportNewSessions(targetProjectPath) {
 }
 // Summary management
 const SUMMARY_PATTERN = /^<!-- SUMMARY: (.*?) -->$/m;
+const SUMMARY_SHORT_PATTERN = /^<!-- SUMMARY_SHORT: (.*?) -->$/m;
+const SUMMARY_FULL_PATTERN = /^<!-- SUMMARY_FULL: (.*?) -->$/m;
 const SUMMARIES_SECTION_PATTERN = /## Summaries\n+(?:- (.+)(?:\n|$))/;
 const PENDING_FOLDER = '.pending';
 /**
@@ -455,6 +459,32 @@ function hasSummary(filePath) {
  */
 function getSummary(filePath) {
     const content = fs.readFileSync(filePath, 'utf-8');
+    return extractSummary(content);
+}
+/**
+ * Get short summary from dialog file
+ * Falls back to regular summary if SHORT not found
+ */
+function getSummaryShort(filePath) {
+    const content = fs.readFileSync(filePath, 'utf-8');
+    const shortMatch = content.match(SUMMARY_SHORT_PATTERN);
+    if (shortMatch) {
+        return shortMatch[1];
+    }
+    // Fallback to regular summary
+    return extractSummary(content);
+}
+/**
+ * Get full summary from dialog file
+ * Falls back to regular summary if FULL not found
+ */
+function getSummaryFull(filePath) {
+    const content = fs.readFileSync(filePath, 'utf-8');
+    const fullMatch = content.match(SUMMARY_FULL_PATTERN);
+    if (fullMatch) {
+        return fullMatch[1];
+    }
+    // Fallback to regular summary
     return extractSummary(content);
 }
 /**
@@ -565,6 +595,11 @@ function getDialogWithSummary(filePath, projectPath) {
     const match = filename.match(/^(\d{4}-\d{2}-\d{2})_session-([a-f0-9]+)\.md$/);
     const date = match ? match[1] : 'Unknown';
     const sessionId = match ? match[2] : filename;
+    // Extract both short and full summaries
+    const shortMatch = content.match(SUMMARY_SHORT_PATTERN);
+    const fullMatch = content.match(SUMMARY_FULL_PATTERN);
+    const summaryShort = shortMatch ? shortMatch[1] : extractSummary(content);
+    const summaryFull = fullMatch ? fullMatch[1] : extractSummary(content);
     return {
         filename,
         filePath,
@@ -575,7 +610,9 @@ function getDialogWithSummary(filePath, projectPath) {
         sizeBytes: stat.size,
         lastModified: stat.mtime,
         sessionDateTime: extractSessionDateTime(content),
-        summary: extractSummary(content)
+        summary: summaryShort, // For backwards compatibility, use short version
+        summaryShort,
+        summaryFull
     };
 }
 /**

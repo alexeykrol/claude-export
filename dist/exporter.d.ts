@@ -117,6 +117,16 @@ export declare function hasSummary(filePath: string): boolean;
  */
 export declare function getSummary(filePath: string): string | null;
 /**
+ * Get short summary from dialog file
+ * Falls back to regular summary if SHORT not found
+ */
+export declare function getSummaryShort(filePath: string): string | null;
+/**
+ * Get full summary from dialog file
+ * Falls back to regular summary if FULL not found
+ */
+export declare function getSummaryFull(filePath: string): string | null;
+/**
  * Add or update summary in dialog file
  */
 export declare function setSummary(filePath: string, summary: string): void;
@@ -157,10 +167,14 @@ export declare function extractSessionDateTime(content: string): Date | null;
  */
 export declare function getDialogWithSummary(filePath: string, projectPath: string): DialogInfo & {
     summary: string | null;
+    summaryShort: string | null;
+    summaryFull: string | null;
 };
 /**
  * Get all dialogs with summaries
  */
 export declare function getExportedDialogsWithSummaries(targetProjectPath: string): Array<DialogInfo & {
     summary: string | null;
+    summaryShort: string | null;
+    summaryFull: string | null;
 }>;

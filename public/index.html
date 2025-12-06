@@ -157,19 +157,19 @@
     }
 
     .item-date {
-      font-size: 1rem;
+      font-size: 1.1rem;
       color: var(--text-primary);
       white-space: nowrap;
     }
 
     .item-meta {
-      font-size: 0.95rem;
+      font-size: 1.05rem;
       color: var(--text-muted);
       white-space: nowrap;
     }
 
     .item-row-bottom {
-      font-size: 1rem;
+      font-size: 1.1rem;
       color: var(--text-secondary);
       line-height: 1.4;
       display: -webkit-box;
@@ -1008,20 +1008,18 @@
           <div class="item-row-top">
             <div class="item-row-top-left">
               <span class="item-date">${formatDateTime(s.sessionDateTime, s.date)}</span>
-              <span class="public-toggle" onclick="event.stopPropagation()">
+              <label class="public-toggle" onclick="event.stopPropagation()">
                 <input type="checkbox" class="public-checkbox"
-                       ${s.isPublic ? '' : 'checked'}
-                       onchange="toggleSessionVisibility('${filename}', this.checked)"
-                       title="${s.isPublic ? 'Public (in git)' : 'Private (in .gitignore)'}">
-                <span class="visibility-badge ${s.isPublic ? 'public' : 'private'}">
-                  ${s.isPublic ? 'Public' : 'Private'}
-                </span>
-              </span>
+                       ${s.isPublic ? 'checked' : ''}
+                       onchange="toggleVisibility('${filename}', this.checked)"
+                       title="Toggle public visibility">
+                <span class="public-label">Public</span>
+              </label>
             </div>
             <span class="item-meta">${s.size}</span>
           </div>
           <div class="item-row-bottom">
-            ${escapeHtml(s.summary || 'No summary')}
+            ${escapeHtml(s.summaryShort || s.summary || 'No summary')}
           </div>
         </li>
       `}).join('');
@@ -1046,15 +1044,13 @@
           <div class="item-row-top">
             <div class="item-row-top-left">
               <span class="item-date">${formatDateTime(d.sessionDateTime, d.date)}</span>
-              <span class="public-toggle" onclick="event.stopPropagation()">
+              <label class="public-toggle" onclick="event.stopPropagation()">
                 <input type="checkbox" class="public-checkbox"
                        ${d.isPublic ? 'checked' : ''}
                        onchange="toggleVisibility('${d.filename}', this.checked)"
-                       title="${d.isPublic ? 'Public (will be committed)' : 'Private (in .gitignore)'}">
-                <span class="visibility-badge ${d.isPublic ? 'public' : 'private'}">
-                  ${d.isPublic ? 'Public' : 'Private'}
-                </span>
-              </span>
+                       title="Toggle public visibility">
+                <span class="public-label">Public</span>
+              </label>
             </div>
             <span class="item-meta">${d.size}</span>
           </div>
@@ -1087,11 +1083,11 @@
         const res = await fetch(`/api/dialog/${filename}`);
         const data = await res.json();
 
-        // Find dialog for summary
+        // Find dialog for summary (use full summary for title)
         const dialog = sessions.find(s => s.filename === filename);
-        const summary = dialog?.summary || filename;
-        document.getElementById('dialogTitle').textContent = summary;
-        document.getElementById('dialogTitle').title = summary;
+        const summaryFull = dialog?.summaryFull || dialog?.summary || filename;
+        document.getElementById('dialogTitle').textContent = summaryFull;
+        document.getElementById('dialogTitle').title = summaryFull;
 
         // Render markdown content
         panel.innerHTML = `<div class="dialog-view markdown-content">${marked.parse(data.content)}</div>`;
@@ -1146,18 +1142,23 @@
         const data = await res.json();
 
         if (data.success) {
-          // Update local state
+          // Update local state - both arrays since they may share data
           const dialog = dialogs.find(d => d.filename === filename);
           if (dialog) {
             dialog.isPublic = data.isPublic;
           }
+          const session = sessions.find(s => s.filename === filename);
+          if (session) {
+            session.isPublic = data.isPublic;
+          }
 
-          // Update badge
+          // Update checkbox state
           const card = document.querySelector(`.item-card[data-filename="${filename}"]`);
           if (card) {
-            const badge = card.querySelector('.visibility-badge');
-            badge.className = `visibility-badge ${data.isPublic ? 'public' : 'private'}`;
-            badge.textContent = data.isPublic ? 'Public' : 'Private';
+            const checkbox = card.querySelector('.public-checkbox');
+            if (checkbox) {
+              checkbox.checked = data.isPublic;
+            }
           }
 
           showToast(`${filename} is now ${data.isPublic ? 'public (will be committed)' : 'private (in .gitignore)'}`);

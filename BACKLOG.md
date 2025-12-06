@@ -92,6 +92,11 @@
   - Files: `src/exporter.ts:549-602`
   - Notes: JSON файлы в .dialog/.pending/
 
+- [x] **Two-Level Summary System** - Двухуровневые саммари (SHORT + FULL)
+  - Implemented: 2025-12-05
+  - Files: `src/watcher.ts:62-93`, `src/exporter.ts:460-485`, `public/index.html`
+  - Notes: SUMMARY_SHORT для списка, SUMMARY_FULL для деталей. Генерация через Haiku с debounce 30 минут
+
 ---
 
 ## 📋 Planned Enhancements

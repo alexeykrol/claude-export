@@ -9,9 +9,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+---
+
+## [2.2.0] - 2025-12-05
+
 ### Added
-- Framework meta-files (PROJECT_INTAKE, BACKLOG, ARCHITECTURE, etc.)
-- Slash commands in `.claude/commands/`
+- **Two-level summary system** — SUMMARY_SHORT (одно предложение) и SUMMARY_FULL (3-5 предложений)
+- **Haiku model for summaries** — Генерация саммари через `--model haiku` для экономии токенов
+
+### Changed
+- **Extended summary debounce** — Увеличен с 30 секунд до 30 минут для снижения затрат
+- Summary generation теперь использует Claude Haiku вместо Sonnet
+
+### Fixed
+- **Watcher auto-start** — Watcher теперь корректно экспортирует текущую сессию в реальном времени
+- Исправлена проблема с отображением активной сессии в UI
 
 ---
 
