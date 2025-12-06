@@ -22,6 +22,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Summary generation теперь использует Claude Haiku вместо Sonnet
 
 ### Fixed
+- **Visibility preservation** — Watcher теперь сохраняет статус публичности файлов при обновлении
+  - Проблема: exportSession() безусловно добавлял файлы в .gitignore при каждом обновлении
+  - Решение: Проверка существования файла, сохранение текущего статуса visibility
+  - Файлы: `src/exporter.ts:384-398`
 - **Watcher auto-start** — Watcher теперь корректно экспортирует текущую сессию в реальном времени
 - Исправлена проблема с отображением активной сессии в UI
 
