@@ -24,7 +24,7 @@ import {
 } from './exporter';
 import { getDialogFolder, ensureDialogFolder, addToGitignore } from './gitignore';
 
-const VERSION = '2.2.1';
+const VERSION = '2.2.2';
 
 function showHelp(): void {
   console.log(`

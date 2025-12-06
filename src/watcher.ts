@@ -17,6 +17,7 @@ import {
   SessionInfo,
   getProjectName,
   getSummary,
+  getSummaryShort,
   formatTimestamp,
   exportNewSessions
 } from './exporter';
@@ -97,13 +98,16 @@ function requestSummary(dialogPath: string, verbose: boolean = false, isFinal: b
     '-p',
     '--dangerously-skip-permissions',
     '--model', 'haiku',
-    '--tools', 'Read,Edit',
-    prompt
+    '--tools', 'Read,Edit'
   ], {
-    stdio: ['ignore', 'pipe', 'pipe'],
+    stdio: ['pipe', 'pipe', 'pipe'],
     shell: false,
     cwd: path.dirname(dialogPath)
   });
+
+  // Write prompt to stdin
+  claude.stdin?.write(prompt);
+  claude.stdin?.end();
 
   let output = '';
   let errorOutput = '';
@@ -336,6 +340,37 @@ export class SessionWatcher {
       this.log(`New exports: ${exported.length}`);
     }
     this.log('');
+
+    // Generate final summaries for closed sessions (all except the most recent one)
+    if (sessions.length > 0) {
+      // Find the most recent (active) session by lastModified timestamp
+      const activeSession = sessions.reduce((latest, current) =>
+        current.lastModified > latest.lastModified ? current : latest
+      );
+
+      // All other sessions are closed - generate final summaries for them
+      const closedSessions = sessions.filter(s => s.id !== activeSession.id);
+
+      for (const session of closedSessions) {
+        const dialogPath = this.findDialogPath(session.id);
+        if (dialogPath) {
+          // Skip very large files (>300KB) to save tokens
+          const stats = fs.statSync(dialogPath);
+          if (stats.size > 300 * 1024) {
+            continue;
+          }
+
+          // Check if file has new format summary (SUMMARY_SHORT)
+          // Old format summaries should be regenerated
+          const hasSummaryShort = getSummaryShort(dialogPath);
+          if (!hasSummaryShort || hasSummaryShort === getSummary(dialogPath)) {
+            // Either no summary, or only old format - generate new one
+            this.log(`Generating final summary for closed session: ${session.id.substring(0, 8)}...`);
+            requestSummary(dialogPath, this.options.verbose, true); // isFinal = true
+          }
+        }
+      }
+    }
 
     // Start watching Claude project directory
     this.watcher = chokidar.watch(claudeProjectPath, {

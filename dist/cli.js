@@ -51,7 +51,7 @@ const watcher_1 = require("./watcher");
 const server_1 = require("./server");
 const exporter_1 = require("./exporter");
 const gitignore_1 = require("./gitignore");
-const VERSION = '2.2.1';
+const VERSION = '2.2.2';
 function showHelp() {
     console.log(`
 Claude Export v${VERSION}

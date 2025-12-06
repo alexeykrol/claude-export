@@ -343,6 +343,16 @@ function exportSession(session, targetProjectPath) {
     const shortId = session.id.substring(0, 8);
     const filename = `${session.dateISO}_session-${shortId}.md`;
     const outputPath = path.join(dialogFolder, filename);
+    // Check if there's an existing file with different name (e.g. due to timezone fix)
+    const existingPath = getExportedPath(session.id, targetProjectPath);
+    if (existingPath && existingPath !== outputPath) {
+        // Old file with different date - remove it before creating new one
+        const wasPublic = (0, gitignore_1.isPublic)(existingPath, targetProjectPath);
+        fs.unlinkSync(existingPath);
+        if (wasPublic) {
+            (0, gitignore_1.removeFromGitignore)(existingPath, targetProjectPath);
+        }
+    }
     // Check if file already exists and was public
     const fileExists = fs.existsSync(outputPath);
     const wasPublic = fileExists && (0, gitignore_1.isPublic)(outputPath, targetProjectPath);

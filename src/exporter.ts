@@ -386,6 +386,17 @@ export function exportSession(session: SessionInfo, targetProjectPath: string): 
   const filename = `${session.dateISO}_session-${shortId}.md`;
   const outputPath = path.join(dialogFolder, filename);
 
+  // Check if there's an existing file with different name (e.g. due to timezone fix)
+  const existingPath = getExportedPath(session.id, targetProjectPath);
+  if (existingPath && existingPath !== outputPath) {
+    // Old file with different date - remove it before creating new one
+    const wasPublic = isPublic(existingPath, targetProjectPath);
+    fs.unlinkSync(existingPath);
+    if (wasPublic) {
+      removeFromGitignore(existingPath, targetProjectPath);
+    }
+  }
+
   // Check if file already exists and was public
   const fileExists = fs.existsSync(outputPath);
   const wasPublic = fileExists && isPublic(outputPath, targetProjectPath);
