@@ -1,8 +1,8 @@
 # Project Backlog
 
 **Project:** Claude Export
-**Version:** 2.1.0
-**Last Updated:** 2025-12-05
+**Version:** 2.2.2
+**Last Updated:** 2025-12-06
 
 > **📋 Authoritative Source:** This is the SINGLE SOURCE OF TRUTH for:
 > - ✅ **Detailed implementation plan** with checklists
@@ -16,12 +16,12 @@
 
 ## 📊 Project Status Overview
 
-**Current Phase:** Production (v2.1.0 released)
-**Active Sprint:** Enhancement Sprint
-**Completion:** 100% of MVP features
+**Current Phase:** Production (v2.2.2 released)
+**Active Sprint:** Bugfix & Stability Sprint
+**Completion:** 100% of MVP features + Critical bug fixes
 
 ### Quick Stats
-- ✅ **Completed:** 15 features
+- ✅ **Completed:** 21 features
 - 🚧 **In Progress:** 0 features
 - 📋 **Planned:** 5 enhancements
 - 🔴 **Blocked:** 0 features
@@ -106,6 +106,31 @@
   - Implemented: 2025-12-05
   - Files: `src/exporter.ts:150-156`, `public/index.html:888-901`
   - Notes: Исправлен баг с UTC конвертацией (20:10 PST → 04:10 UTC следующего дня). Теперь используется локальное время.
+
+- [x] **Duplicate Prevention** - Предотвращение дубликатов файлов при изменении формата
+  - Implemented: 2025-12-06
+  - Files: `src/exporter.ts:389-398`
+  - Notes: При изменении логики датировки (UTC → local) старый файл автоматически удаляется. Проверка по session ID, сохранение visibility статуса.
+
+- [x] **Old Format Summary Regeneration** - Автоматическая замена старого формата summary
+  - Implemented: 2025-12-06
+  - Files: `src/watcher.ts:353-370`
+  - Notes: Файлы с `## Summaries` определяются как требующие обновления. Генерация SUMMARY_SHORT и SUMMARY_FULL через Claude CLI. Пропуск файлов >300KB.
+
+- [x] **Summary Generation via stdin** - Корректная передача prompt в Claude CLI
+  - Implemented: 2025-12-06
+  - Files: `src/watcher.ts:96-109`
+  - Notes: Многострочный prompt передаётся через stdin вместо CLI аргумента для корректной обработки.
+
+- [x] **Final Summaries at Cold Start** - Генерация финальных summary для закрытых сессий
+  - Implemented: 2025-12-06
+  - Files: `src/watcher.ts:340-372`
+  - Notes: При cold start определяются закрытые сессии (все кроме текущей активной). Автоматическая генерация двухуровневых summary. Пропуск файлов >300KB для экономии токенов.
+
+- [x] **Watcher Cold Start Reliability** - Надёжный подхват всех сессий при старте
+  - Implemented: 2025-12-06
+  - Files: `src/watcher.ts:325-338`
+  - Notes: Initial export использует `exportNewSessions()` вместо обычного экспорта. Подхватывает ВСЕ неэкспортированные сессии, включая те, что с ошибками парсинга.
 
 ---
 
@@ -214,21 +239,35 @@
 
 ## 📋 Sprint Planning
 
-### Current Sprint: Documentation & Framework Integration
-**Duration:** 2025-12-05
-**Goal:** Добавить мета-файлы фреймворка
+### Current Sprint: Bugfix & Stability Sprint
+**Duration:** 2025-12-06
+**Goal:** Исправить критические баги после timezone fix и улучшить cold start
 
 #### Sprint Backlog
+- [x] Исправить дубликаты файлов при изменении формата даты
+- [x] Генерация финальных summary для закрытых сессий при cold start
+- [x] Замена старого формата summary на новый (SUMMARY_SHORT/FULL)
+- [x] Передача prompt через stdin в Claude CLI
+- [x] Улучшить watcher cold start reliability
+- [x] Обновить CHANGELOG.md
+- [x] Обновить PROJECT_SNAPSHOT.md
+- [x] Обновить BACKLOG.md
+
+### Previous Sprint: Documentation & Framework Integration
+**Duration:** 2025-12-05
+**Status:** ✅ Completed
+
+#### Completed Tasks
 - [x] Создать PROJECT_INTAKE.md
 - [x] Создать BACKLOG.md
-- [ ] Создать PROJECT_SNAPSHOT.md
-- [ ] Создать ARCHITECTURE.md
-- [ ] Создать SECURITY.md
-- [ ] Создать WORKFLOW.md
-- [ ] Создать PROCESS.md
-- [ ] Создать CHANGELOG.md
-- [ ] Добавить .claude/commands/
-- [ ] Обновить CLAUDE.md
+- [x] Создать PROJECT_SNAPSHOT.md
+- [x] Создать ARCHITECTURE.md
+- [x] Создать SECURITY.md
+- [x] Создать WORKFLOW.md
+- [x] Создать PROCESS.md
+- [x] Создать CHANGELOG.md
+- [x] Добавить .claude/commands/
+- [x] Обновить CLAUDE.md
 
 ---
 
@@ -274,4 +313,4 @@ Low Impact, Long Term → Do LAST
 ---
 
 *This is the SINGLE SOURCE OF TRUTH for project status*
-*Last updated: 2025-12-05*
+*Last updated: 2025-12-06*
