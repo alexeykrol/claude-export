@@ -21,7 +21,7 @@
 **Completion:** 100% of MVP features
 
 ### Quick Stats
-- ✅ **Completed:** 12 features
+- ✅ **Completed:** 15 features
 - 🚧 **In Progress:** 0 features
 - 📋 **Planned:** 5 enhancements
 - 🔴 **Blocked:** 0 features
@@ -96,6 +96,16 @@
   - Implemented: 2025-12-05
   - Files: `src/watcher.ts:62-93`, `src/exporter.ts:460-485`, `public/index.html`
   - Notes: SUMMARY_SHORT для списка, SUMMARY_FULL для деталей. Генерация через Haiku с debounce 30 минут
+
+- [x] **Force Sync Button** - Синхронизация текущей активной сессии
+  - Implemented: 2025-12-05
+  - Files: `src/exporter.ts:501-561`, `src/server.ts:384-413`, `public/index.html:827-954`
+  - Notes: Кнопка для принудительной синхронизации текущей активной сессии. Сравнивает JSONL vs MD, добавляет недостающие сообщения.
+
+- [x] **Timezone Fix** - Корректная датировка файлов по локальному времени
+  - Implemented: 2025-12-05
+  - Files: `src/exporter.ts:150-156`, `public/index.html:888-901`
+  - Notes: Исправлен баг с UTC конвертацией (20:10 PST → 04:10 UTC следующего дня). Теперь используется локальное время.
 
 ---
 

@@ -9,6 +9,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **Force Sync button** — Кнопка для синхронизации текущей активной сессии
+  - `syncCurrentSession()` function in `src/exporter.ts`
+  - POST `/api/force-export` endpoint in `src/server.ts`
+  - UI button in Sessions panel with toast notifications
+  - Shows "Already up to date" or "Added N message(s)"
+
+### Fixed
+- **Timezone bug in file naming** — Файлы теперь датируются по локальному времени, а не UTC
+  - `formatDateISO()` in `src/exporter.ts` uses local time
+  - `formatDateTime()` in `public/index.html` uses local time
+  - Fixed files being dated next day due to UTC conversion (20:10 PST → 04:10 UTC next day)
+
 ---
 
 ## [2.2.0] - 2025-12-05
