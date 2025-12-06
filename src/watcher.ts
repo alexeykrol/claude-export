@@ -17,7 +17,8 @@ import {
   SessionInfo,
   getProjectName,
   getSummary,
-  formatTimestamp
+  formatTimestamp,
+  exportNewSessions
 } from './exporter';
 import { getDialogFolder, ensureDialogFolder } from './gitignore';
 
@@ -316,58 +317,36 @@ export class SessionWatcher {
     this.log(`Dialogs folder: ${dialogFolder}`);
     this.log('');
 
-    // Initial export of all sessions
+    // Initial export of all sessions using robust exportNewSessions()
     this.log('Performing initial export...');
-    const sessions = getProjectSessions(this.targetProjectPath);
 
-    let newCount = 0;
-    let updatedCount = 0;
+    // Use the same reliable logic as CLI export command
+    const exported = exportNewSessions(this.targetProjectPath);
+
+    // Track file sizes for all sessions (including already exported ones)
+    const sessions = getProjectSessions(this.targetProjectPath);
     for (const session of sessions) {
       const sourcePath = path.join(PROJECTS_DIR, session.projectPath, session.filename);
-      const exportedPath = this.findDialogPath(session.id);
-
-      if (!exportedPath) {
-        // Not exported yet - export it
-        fileSizes.set(sourcePath, session.sizeBytes);
-        this.exportFile(sourcePath);
-        newCount++;
-      } else {
-        // Already exported - check if JSONL is newer than markdown
-        const jsonlStat = fs.statSync(sourcePath);
-        const mdStat = fs.statSync(exportedPath);
-
-        if (jsonlStat.mtime > mdStat.mtime) {
-          // JSONL was updated after markdown - re-export
-          this.log(`Updating: ${path.basename(exportedPath)} (source newer)`);
-          fileSizes.set(sourcePath, 0); // Force re-export by setting size to 0
-          this.exportFile(sourcePath);
-          updatedCount++;
-        } else {
-          // Track existing file sizes
-          fileSizes.set(sourcePath, session.sizeBytes);
-        }
-      }
+      fileSizes.set(sourcePath, session.sizeBytes);
     }
 
-    if (newCount === 0 && updatedCount === 0) {
+    if (exported.length === 0) {
       this.log('All sessions already exported and up to date');
     } else {
-      if (newCount > 0) this.log(`New exports: ${newCount}`);
-      if (updatedCount > 0) this.log(`Updated: ${updatedCount}`);
+      this.log(`New exports: ${exported.length}`);
     }
     this.log('');
 
     // Start watching Claude project directory
     this.watcher = chokidar.watch(claudeProjectPath, {
-      ignored: [
-        /(^|[\/\\])\../,           // Ignore dotfiles
-        /agent-.*\.jsonl$/,        // Ignore agent files
-        /.*(?<!\.jsonl)$/          // Only watch .jsonl files
-      ],
+      ignored: /(^|[\/\\])\../,    // Only ignore dotfiles
       persistent: true,
       ignoreInitial: true,
+      depth: 0,                     // Only watch files in this directory
+      usePolling: true,             // Use polling instead of fs.watch
+      interval: 1000,               // Poll every second
       awaitWriteFinish: {
-        stabilityThreshold: 1000,
+        stabilityThreshold: 500,
         pollInterval: 100
       }
     });
