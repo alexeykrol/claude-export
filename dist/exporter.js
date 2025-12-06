@@ -338,10 +338,20 @@ function exportSession(session, targetProjectPath) {
     const shortId = session.id.substring(0, 8);
     const filename = `${session.dateISO}_session-${shortId}.md`;
     const outputPath = path.join(dialogFolder, filename);
+    // Check if file already exists and was public
+    const fileExists = fs.existsSync(outputPath);
+    const wasPublic = fileExists && (0, gitignore_1.isPublic)(outputPath, targetProjectPath);
     // Write markdown file
     fs.writeFileSync(outputPath, markdown);
-    // Add to .gitignore by default (private)
-    (0, gitignore_1.addToGitignore)(outputPath, targetProjectPath);
+    // Add to .gitignore only for NEW files (privacy by default)
+    // Keep existing visibility for already exported files
+    if (!fileExists) {
+        (0, gitignore_1.addToGitignore)(outputPath, targetProjectPath);
+    }
+    else if (wasPublic) {
+        // Ensure public files stay public (in case they were re-added to gitignore)
+        (0, gitignore_1.removeFromGitignore)(outputPath, targetProjectPath);
+    }
     return {
         id: session.id,
         projectName: session.projectName,

@@ -11,6 +11,7 @@ import {
   ensureDialogFolder,
   getDialogFolder,
   addToGitignore,
+  removeFromGitignore,
   isPublic,
   getDialogFiles
 } from './gitignore';
@@ -381,11 +382,21 @@ export function exportSession(session: SessionInfo, targetProjectPath: string): 
   const filename = `${session.dateISO}_session-${shortId}.md`;
   const outputPath = path.join(dialogFolder, filename);
 
+  // Check if file already exists and was public
+  const fileExists = fs.existsSync(outputPath);
+  const wasPublic = fileExists && isPublic(outputPath, targetProjectPath);
+
   // Write markdown file
   fs.writeFileSync(outputPath, markdown);
 
-  // Add to .gitignore by default (private)
-  addToGitignore(outputPath, targetProjectPath);
+  // Add to .gitignore only for NEW files (privacy by default)
+  // Keep existing visibility for already exported files
+  if (!fileExists) {
+    addToGitignore(outputPath, targetProjectPath);
+  } else if (wasPublic) {
+    // Ensure public files stay public (in case they were re-added to gitignore)
+    removeFromGitignore(outputPath, targetProjectPath);
+  }
 
   return {
     id: session.id,
