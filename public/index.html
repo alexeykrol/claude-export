@@ -73,7 +73,7 @@
       border-radius: 6px;
       color: var(--text-primary);
       font-family: inherit;
-      font-size: 0.85rem;
+      font-size: 1.05rem;
       width: 250px;
     }
 
@@ -83,7 +83,7 @@
     }
 
     .stats {
-      font-size: 0.85rem;
+      font-size: 1.05rem;
       color: var(--text-secondary);
     }
 
@@ -91,7 +91,7 @@
       display: grid;
       grid-template-columns: 1fr 2fr;
       gap: 20px;
-      height: calc(100vh - 220px);
+      height: calc(100vh - 200px);
     }
 
     .panel {
@@ -112,8 +112,8 @@
     }
 
     .panel-title {
-      font-size: 0.9rem;
-      font-weight: 600;
+      font-size: 1.1rem;
+      font-weight: 400;
     }
 
     .panel-content {
@@ -157,19 +157,19 @@
     }
 
     .item-date {
-      font-size: 0.8rem;
+      font-size: 1rem;
       color: var(--text-primary);
       white-space: nowrap;
     }
 
     .item-meta {
-      font-size: 0.75rem;
+      font-size: 0.95rem;
       color: var(--text-muted);
       white-space: nowrap;
     }
 
     .item-row-bottom {
-      font-size: 0.8rem;
+      font-size: 1rem;
       color: var(--text-secondary);
       line-height: 1.4;
       display: -webkit-box;
@@ -179,17 +179,17 @@
     }
 
     .session-date {
-      font-size: 0.8rem;
+      font-size: 1rem;
       white-space: nowrap;
     }
 
     .session-summary {
-      font-size: 0.8rem;
+      font-size: 1rem;
       color: var(--text-secondary);
     }
 
     .session-meta {
-      font-size: 0.75rem;
+      font-size: 0.95rem;
       color: var(--text-muted);
       white-space: nowrap;
     }
@@ -225,13 +225,13 @@
     }
 
     .public-label {
-      font-size: 0.7rem;
+      font-size: 1.1rem;
       color: var(--text-muted);
       margin-left: 4px;
     }
 
     .visibility-badge {
-      font-size: 0.7rem;
+      font-size: 1.1rem;
       padding: 2px 6px;
       border-radius: 4px;
       font-weight: 500;
@@ -260,7 +260,7 @@
       border: none;
       border-radius: 4px;
       font-family: inherit;
-      font-size: 0.7rem;
+      font-size: 1.1rem;
       cursor: pointer;
       transition: all 0.15s;
     }
@@ -276,7 +276,7 @@
     }
 
     .pending-badge {
-      font-size: 0.7rem;
+      font-size: 1.1rem;
       padding: 2px 6px;
       border-radius: 4px;
       background: rgba(251, 191, 36, 0.2);
@@ -294,7 +294,7 @@
       justify-content: center;
       height: 100%;
       color: var(--text-muted);
-      font-size: 0.9rem;
+      font-size: 1.1rem;
       flex-direction: column;
       gap: 10px;
     }
@@ -303,7 +303,7 @@
       margin-bottom: 16px;
       padding: 12px 16px;
       border-radius: 8px;
-      font-size: 0.85rem;
+      font-size: 1.05rem;
     }
 
     .message.user {
@@ -320,7 +320,7 @@
       display: flex;
       justify-content: space-between;
       margin-bottom: 8px;
-      font-size: 0.75rem;
+      font-size: 0.95rem;
     }
 
     .message-role {
@@ -341,16 +341,115 @@
     }
 
     .message-content {
-      white-space: pre-wrap;
       word-break: break-word;
-      line-height: 1.5;
+      line-height: 1.6;
+    }
+
+    .message-content p {
+      margin: 0 0 0.75rem 0;
+    }
+
+    .message-content p:last-child {
+      margin-bottom: 0;
+    }
+
+    /* Markdown content styling for dialog messages */
+    .markdown-content h3 {
+      padding: 12px 16px;
+      margin: 16px 0 0 0;
+      border-radius: 8px 8px 0 0;
+      font-size: 0.95rem;
+      font-weight: 600;
+    }
+
+    .markdown-content h3 + p,
+    .markdown-content h3 + ul,
+    .markdown-content h3 + pre,
+    .markdown-content h3 + blockquote {
+      padding: 12px 16px;
+      margin: 0 0 16px 0;
+      border-radius: 0 0 8px 8px;
+    }
+
+    /* User messages */
+    .markdown-content h3.msg-user {
+      background: var(--user-bg);
+      border-left: 3px solid var(--accent);
+      color: var(--accent);
+    }
+
+    .markdown-content h3.msg-user + p,
+    .markdown-content h3.msg-user + ul,
+    .markdown-content h3.msg-user + pre,
+    .markdown-content h3.msg-user + blockquote {
+      background: var(--user-bg);
+      border-left: 3px solid var(--accent);
+    }
+
+    /* Claude messages */
+    .markdown-content h3.msg-assistant {
+      background: var(--assistant-bg);
+      border-left: 3px solid var(--success);
+      color: var(--success);
+    }
+
+    .markdown-content h3.msg-assistant + p,
+    .markdown-content h3.msg-assistant + ul,
+    .markdown-content h3.msg-assistant + pre,
+    .markdown-content h3.msg-assistant + blockquote {
+      background: var(--assistant-bg);
+      border-left: 3px solid var(--success);
+    }
+
+    .markdown-content hr {
+      border: none;
+      height: 1px;
+      background: var(--border);
+      margin: 16px 0;
+    }
+
+    .markdown-content pre {
+      background: var(--bg-tertiary);
+      padding: 12px;
+      border-radius: 6px;
+      overflow-x: auto;
+    }
+
+    .markdown-content code {
+      background: var(--bg-tertiary);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.9em;
+    }
+
+    .markdown-content pre code {
+      background: none;
+      padding: 0;
+    }
+
+    .message-content h1, .message-content h2, .message-content h3 {
+      margin: 1rem 0 0.5rem 0;
+      color: var(--text-primary);
+    }
+
+    .message-content h1 { font-size: 1.3rem; }
+    .message-content h2 { font-size: 1.2rem; }
+    .message-content h3 { font-size: 1.1rem; }
+
+    .message-content ul, .message-content ol {
+      margin: 0.5rem 0;
+      padding-left: 1.5rem;
+    }
+
+    .message-content li {
+      margin: 0.25rem 0;
     }
 
     .message-content code {
       background: rgba(0,0,0,0.3);
       padding: 2px 6px;
       border-radius: 4px;
-      font-size: 0.8rem;
+      font-size: 0.95rem;
     }
 
     .message-content pre {
@@ -358,7 +457,44 @@
       padding: 12px;
       border-radius: 6px;
       overflow-x: auto;
-      margin: 8px 0;
+      margin: 0.75rem 0;
+    }
+
+    .message-content pre code {
+      padding: 0;
+      background: none;
+    }
+
+    .message-content a {
+      color: #4a9eff;
+      text-decoration: none;
+    }
+
+    .message-content a:hover {
+      text-decoration: underline;
+    }
+
+    .message-content blockquote {
+      border-left: 3px solid var(--border);
+      margin: 0.75rem 0;
+      padding-left: 1rem;
+      color: var(--text-secondary);
+    }
+
+    .message-content table {
+      border-collapse: collapse;
+      margin: 0.75rem 0;
+      width: 100%;
+    }
+
+    .message-content th, .message-content td {
+      border: 1px solid var(--border);
+      padding: 0.5rem;
+      text-align: left;
+    }
+
+    .message-content th {
+      background: var(--bg-tertiary);
     }
 
     /* Buttons */
@@ -367,7 +503,7 @@
       border: none;
       border-radius: 4px;
       font-family: inherit;
-      font-size: 0.8rem;
+      font-size: 1rem;
       cursor: pointer;
       transition: all 0.15s;
     }
@@ -433,7 +569,7 @@
       background: var(--success);
       color: var(--bg-primary);
       border-radius: 6px;
-      font-size: 0.85rem;
+      font-size: 1.05rem;
       font-weight: 500;
       transform: translateY(100px);
       opacity: 0;
@@ -450,6 +586,141 @@
       background: var(--accent);
     }
 
+    /* Modal */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      z-index: 2000;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-overlay.show {
+      display: flex;
+    }
+
+    .modal-content {
+      background: var(--bg-secondary);
+      border-radius: 12px;
+      width: 90%;
+      max-width: 750px;
+      max-height: 80vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .modal-header h2 {
+      margin: 0;
+      font-size: 1.3rem;
+      color: var(--text-primary);
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 1.8rem;
+      color: var(--text-secondary);
+      cursor: pointer;
+      padding: 0;
+      line-height: 1;
+    }
+
+    .modal-close:hover {
+      color: var(--text-primary);
+    }
+
+    .modal-body {
+      padding: 1.5rem;
+      overflow-y: auto;
+      font-size: 1.1rem;
+      line-height: 1.6;
+      color: var(--text-secondary);
+    }
+
+    .modal-body p {
+      margin: 0 0 1rem 0;
+    }
+
+    .modal-body p:last-child {
+      margin-bottom: 0;
+    }
+
+    .modal-body h1 {
+      font-size: 1.4rem;
+      margin: 0 0 1rem 0;
+      color: var(--text-primary);
+    }
+
+    .modal-body h2 {
+      font-size: 1.2rem;
+      margin: 1.5rem 0 0.75rem 0;
+      color: var(--text-primary);
+    }
+
+    .modal-body h3 {
+      font-size: 1.1rem;
+      margin: 1rem 0 0.5rem 0;
+      color: var(--text-primary);
+    }
+
+    .modal-body ul, .modal-body ol {
+      margin: 0.5rem 0;
+      padding-left: 1.5rem;
+    }
+
+    .modal-body li {
+      margin: 0.25rem 0;
+    }
+
+    .modal-body code {
+      background: var(--bg-tertiary);
+      padding: 0.2rem 0.4rem;
+      border-radius: 4px;
+      font-size: 0.95rem;
+    }
+
+    .modal-body pre {
+      background: var(--bg-tertiary);
+      padding: 1rem;
+      border-radius: 6px;
+      overflow-x: auto;
+      margin: 1rem 0;
+    }
+
+    .modal-body pre code {
+      padding: 0;
+      background: none;
+    }
+
+    .modal-body a {
+      color: #4a9eff;
+      text-decoration: none;
+    }
+
+    .modal-body a:hover {
+      text-decoration: underline;
+    }
+
+    .modal-body hr {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 1.5rem 0;
+    }
+
     /* Summaries */
     .session-summaries {
       padding: 12px 16px;
@@ -458,7 +729,7 @@
     }
 
     .session-summaries h3 {
-      font-size: 0.75rem;
+      font-size: 0.95rem;
       text-transform: uppercase;
       color: var(--text-muted);
       margin-bottom: 8px;
@@ -466,7 +737,7 @@
 
     .session-summaries ul {
       list-style: none;
-      font-size: 0.8rem;
+      font-size: 1rem;
       color: var(--text-secondary);
     }
 
@@ -483,7 +754,7 @@
       padding: 12px 16px;
       background: var(--bg-tertiary);
       border-bottom: 1px solid var(--border);
-      font-size: 0.8rem;
+      font-size: 1rem;
       color: var(--text-secondary);
     }
 
@@ -536,18 +807,18 @@
       }
     }
   </style>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
 <body>
   <div class="container">
     <header>
       <div class="header-top">
-        <h1>Claude Export</h1>
+        <h1>Claude Export <span style="font-weight: 400; font-size: 1rem; color: #888;">v2.1.0 · 2025-12-05</span></h1>
         <div class="header-controls">
           <input type="text" class="search-box" id="searchBox" placeholder="Search dialogs...">
-          <span class="stats" id="stats">Loading...</span>
+          <button class="btn btn-secondary" onclick="openHelpModal()">Помощь</button>
         </div>
       </div>
-
     </header>
 
     <div class="layout">
@@ -568,29 +839,40 @@
       <!-- Right Panel: Dialog Viewer -->
       <div class="panel">
         <div class="panel-header">
-          <span class="panel-title" id="dialogTitle">Dialog</span>
-          <div class="btn-group">
-            <button class="btn btn-secondary" id="btnExport" onclick="exportSession()" disabled>
-              Export
-            </button>
-            <button class="btn btn-primary" id="btnDownload" onclick="downloadSession()" disabled>
-              Download .md
-            </button>
-          </div>
+          <span class="panel-title" id="dialogTitle" style="flex: 1;">Select a dialog</span>
+          <button class="btn btn-secondary" id="scrollBtn" onclick="toggleScroll()" title="Scroll to last message">↓ Last</button>
         </div>
-        <div id="sessionInfo"></div>
-        <div id="dialogSummaries"></div>
         <div class="panel-content" id="dialogPanel">
           <div class="dialog-empty">
             <span>Select a session or dialog to view</span>
-            <span style="font-size: 0.75rem;">Dialogs are saved to .dialog/ folder</span>
+            <span style="font-size: 0.95rem;">Dialogs are saved to .dialog/ folder</span>
           </div>
         </div>
       </div>
     </div>
+
+    <footer style="text-align: center; padding: 1rem 0.5rem 1.5rem; color: #888; font-size: 1.1rem;">
+      © Alex Krol ·
+      <a href="https://github.com/anthropics/claude-export" target="_blank" style="color: #4a9eff; text-decoration: none;">GitHub</a> ·
+      <a href="https://facebook.com/alexkrol" target="_blank" style="color: #4a9eff; text-decoration: none;">Facebook</a> ·
+      <a href="https://linkedin.com/in/alexkrol" target="_blank" style="color: #4a9eff; text-decoration: none;">LinkedIn</a>
+    </footer>
   </div>
 
   <div class="toast" id="toast"></div>
+
+  <!-- Help Modal -->
+  <div class="modal-overlay" id="helpModal" onclick="closeHelpModal(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Помощь</h2>
+        <button class="modal-close" onclick="closeHelpModal()">&times;</button>
+      </div>
+      <div class="modal-body" id="helpContent">
+        <p>Загрузка...</p>
+      </div>
+    </div>
+  </div>
 
   <script>
     let currentTab = 'sessions';
@@ -599,6 +881,17 @@
     let filteredItems = [];
     let selectedSession = null;
     let projectInfo = null;
+
+    // Format date with time: "2025-12-05, 15:24"
+    function formatDateTime(sessionDateTime, fallbackDate) {
+      if (sessionDateTime) {
+        const d = new Date(sessionDateTime);
+        const date = d.toISOString().split('T')[0];
+        const time = d.toTimeString().slice(0, 5);
+        return `${date}, ${time}`;
+      }
+      return fallbackDate || 'Unknown';
+    }
 
     document.addEventListener('DOMContentLoaded', () => {
       loadProject();
@@ -637,17 +930,20 @@
 
     async function loadSessions() {
       const panel = document.getElementById('leftPanel');
-      panel.innerHTML = '<div class="loading"><div class="spinner"></div>Loading sessions...</div>';
+      panel.innerHTML = '<div class="loading"><div class="spinner"></div>Loading dialogs...</div>';
 
       try {
-        const res = await fetch('/api/sessions');
+        // Use /api/dialogs - reads from .dialog/ folder only
+        const res = await fetch('/api/dialogs');
         const data = await res.json();
-        sessions = data.sessions;
+        sessions = data.dialogs;
+        // Sort by sessionDateTime (newest first)
+        sessions.sort((a, b) => {
+          const timeA = new Date(a.sessionDateTime || a.lastModified).getTime();
+          const timeB = new Date(b.sessionDateTime || b.lastModified).getTime();
+          return timeB - timeA;
+        });
         filteredItems = sessions;
-
-        document.getElementById('stats').textContent =
-          `${data.total} sessions, ${data.exported} exported`;
-
         renderSessions();
       } catch (err) {
         panel.innerHTML = `<div class="dialog-empty">Error: ${err.message}</div>`;
@@ -663,10 +959,6 @@
         const data = await res.json();
         dialogs = data.dialogs;
         filteredItems = dialogs;
-
-        document.getElementById('stats').textContent =
-          `${data.total} dialogs (${data.public} public, ${data.private} private)`;
-
         renderDialogs();
       } catch (err) {
         panel.innerHTML = `<div class="dialog-empty">Error: ${err.message}</div>`;
@@ -700,37 +992,36 @@
       const panel = document.getElementById('leftPanel');
 
       if (filteredItems.length === 0) {
-        panel.innerHTML = '<div class="dialog-empty">No sessions found</div>';
+        panel.innerHTML = '<div class="dialog-empty">No dialogs found</div>';
         return;
       }
 
       const list = document.createElement('ul');
       list.className = 'item-list';
       list.innerHTML = filteredItems.map(s => {
-        const filename = s.exportPath ? s.exportPath.split('/').pop() : '';
+        const filename = s.filename;
+
         return `
-        <li class="item-card ${selectedSession?.id === s.id ? 'selected' : ''}"
-            data-id="${s.id}" data-project="${s.projectPath}"
-            onclick="selectSession('${s.projectPath}', '${s.id}')">
+        <li class="item-card ${selectedSession?.filename === filename ? 'selected' : ''}"
+            data-filename="${filename}"
+            onclick="selectSession('${filename}')">
           <div class="item-row-top">
             <div class="item-row-top-left">
-              <span class="export-status ${s.isExported ? 'exported' : 'not-exported'}"
-                    title="${s.isExported ? 'Exported' : 'Not exported'}"></span>
-              <span class="item-date">${s.date}</span>
+              <span class="item-date">${formatDateTime(s.sessionDateTime, s.date)}</span>
               <span class="public-toggle" onclick="event.stopPropagation()">
                 <input type="checkbox" class="public-checkbox"
                        ${s.isPublic ? '' : 'checked'}
-                       onchange="toggleSessionVisibility('${s.projectPath}', '${s.id}', ${s.isExported}, this.checked)"
+                       onchange="toggleSessionVisibility('${filename}', this.checked)"
                        title="${s.isPublic ? 'Public (in git)' : 'Private (in .gitignore)'}">
                 <span class="visibility-badge ${s.isPublic ? 'public' : 'private'}">
                   ${s.isPublic ? 'Public' : 'Private'}
                 </span>
               </span>
             </div>
-            <span class="item-meta">${s.messageCount} msgs · ${s.size}</span>
+            <span class="item-meta">${s.size}</span>
           </div>
           <div class="item-row-bottom">
-            ${escapeHtml(s.summaries[0] || 'No summary')}
+            ${escapeHtml(s.summary || 'No summary')}
           </div>
         </li>
       `}).join('');
@@ -754,7 +1045,7 @@
             onclick="selectDialog('${d.filename}')">
           <div class="item-row-top">
             <div class="item-row-top-left">
-              <span class="item-date">${d.date}</span>
+              <span class="item-date">${formatDateTime(d.sessionDateTime, d.date)}</span>
               <span class="public-toggle" onclick="event.stopPropagation()">
                 <input type="checkbox" class="public-checkbox"
                        ${d.isPublic ? 'checked' : ''}
@@ -780,72 +1071,39 @@
       panel.appendChild(list);
     }
 
-    async function selectSession(projectPath, id) {
+    async function selectSession(filename) {
       document.querySelectorAll('.item-card').forEach(card => {
-        card.classList.toggle('selected',
-          card.dataset.id === id && card.dataset.project === projectPath);
+        card.classList.toggle('selected', card.dataset.filename === filename);
       });
 
-      selectedSession = { projectPath, id };
-      document.getElementById('btnDownload').disabled = false;
-      document.getElementById('btnExport').disabled = false;
+      selectedSession = { filename };
 
       const panel = document.getElementById('dialogPanel');
-      const summariesDiv = document.getElementById('dialogSummaries');
-      const infoDiv = document.getElementById('sessionInfo');
-
       panel.innerHTML = '<div class="loading"><div class="spinner"></div>Loading dialog...</div>';
-      summariesDiv.innerHTML = '';
-      infoDiv.innerHTML = '';
+      resetScrollBtn();
 
       try {
-        const res = await fetch(`/api/session/${projectPath}/${id}`);
+        // Load from markdown file in .dialog/
+        const res = await fetch(`/api/dialog/${filename}`);
         const data = await res.json();
 
-        const session = sessions.find(s => s.id === id && s.projectPath === projectPath);
+        // Find dialog for summary
+        const dialog = sessions.find(s => s.filename === filename);
+        const summary = dialog?.summary || filename;
+        document.getElementById('dialogTitle').textContent = summary;
+        document.getElementById('dialogTitle').title = summary;
 
-        document.getElementById('dialogTitle').textContent = `Dialog (${data.messageCount} messages)`;
+        // Render markdown content
+        panel.innerHTML = `<div class="dialog-view markdown-content">${marked.parse(data.content)}</div>`;
 
-        if (session) {
-          infoDiv.innerHTML = `
-            <div class="session-info">
-              <strong>Date:</strong> ${session.date} |
-              <strong>Size:</strong> ${session.size} |
-              <strong>Status:</strong> ${session.isExported ? 'Exported' : 'Not exported'}
-            </div>
-          `;
-        }
-
-        if (data.summaries && data.summaries.length > 0) {
-          summariesDiv.innerHTML = `
-            <div class="session-summaries">
-              <h3>Session Summaries</h3>
-              <ul>
-                ${data.summaries.map(s => `<li>${escapeHtml(s)}</li>`).join('')}
-              </ul>
-            </div>
-          `;
-        }
-
-        if (data.dialog.length === 0) {
-          panel.innerHTML = '<div class="dialog-empty">No messages in this session</div>';
-          return;
-        }
-
-        panel.innerHTML = '<div class="dialog-view"></div>';
-        const view = panel.querySelector('.dialog-view');
-
-        data.dialog.forEach(msg => {
-          const div = document.createElement('div');
-          div.className = `message ${msg.role}`;
-          div.innerHTML = `
-            <div class="message-header">
-              <span class="message-role">${msg.role === 'user' ? 'User' : 'Claude'}</span>
-              <span class="message-time">${msg.time}</span>
-            </div>
-            <div class="message-content">${formatContent(msg.content)}</div>
-          `;
-          view.appendChild(div);
+        // Style h3 headers based on emoji content
+        panel.querySelectorAll('h3').forEach(h3 => {
+          const text = h3.textContent || '';
+          if (text.includes('👤') || text.includes('User')) {
+            h3.classList.add('msg-user');
+          } else if (text.includes('🤖') || text.includes('Claude')) {
+            h3.classList.add('msg-assistant');
+          }
         });
 
       } catch (err) {
@@ -859,30 +1117,18 @@
       });
 
       const panel = document.getElementById('dialogPanel');
-      const summariesDiv = document.getElementById('dialogSummaries');
-      const infoDiv = document.getElementById('sessionInfo');
-
       panel.innerHTML = '<div class="loading"><div class="spinner"></div>Loading...</div>';
-      summariesDiv.innerHTML = '';
-      infoDiv.innerHTML = '';
-
-      document.getElementById('btnDownload').disabled = true;
-      document.getElementById('btnExport').disabled = true;
+      resetScrollBtn();
 
       try {
         const res = await fetch(`/api/dialog/${filename}`);
         const data = await res.json();
 
+        // Show filename as title
         document.getElementById('dialogTitle').textContent = filename;
+        document.getElementById('dialogTitle').title = filename;
 
-        infoDiv.innerHTML = `
-          <div class="session-info">
-            <strong>Path:</strong> ${data.path} |
-            <strong>Git:</strong> ${data.isPublic ? 'Public' : 'Private (.gitignore)'}
-          </div>
-        `;
-
-        panel.innerHTML = `<div class="dialog-view"><pre style="white-space: pre-wrap; font-size: 0.8rem;">${escapeHtml(data.content)}</pre></div>`;
+        panel.innerHTML = `<div class="dialog-view"><pre style="white-space: pre-wrap; font-size: 1rem;">${escapeHtml(data.content)}</pre></div>`;
 
       } catch (err) {
         panel.innerHTML = `<div class="dialog-empty">Error: ${err.message}</div>`;
@@ -922,40 +1168,10 @@
       }
     }
 
-    // Toggle visibility for session (export first if needed)
+    // Toggle visibility for dialog file
     // isPrivate = true means file should be in .gitignore
-    async function toggleSessionVisibility(projectPath, sessionId, isExported, isPrivate) {
+    async function toggleSessionVisibility(filename, isPrivate) {
       try {
-        let filename;
-
-        // If not exported, export first
-        if (!isExported) {
-          const exportRes = await fetch(`/api/export/${projectPath}/${sessionId}`, { method: 'POST' });
-          const exportData = await exportRes.json();
-
-          if (!exportData.success) {
-            showToast('Export failed: ' + exportData.error, true);
-            loadSessions();
-            return;
-          }
-
-          filename = exportData.filename;
-          showToast(`Exported: ${filename}`);
-        } else {
-          // Find the exported filename from sessions
-          const session = sessions.find(s => s.id === sessionId && s.projectPath === projectPath);
-          if (session && session.exportPath) {
-            filename = session.exportPath.split('/').pop();
-          }
-        }
-
-        if (!filename) {
-          showToast('Could not find export file', true);
-          loadSessions();
-          return;
-        }
-
-        // Now toggle visibility: isPrivate=true means add to gitignore (isPublic=false)
         const res = await fetch(`/api/dialog/visibility/${filename}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -966,6 +1182,8 @@
 
         if (data.success) {
           showToast(`${filename} is now ${data.isPublic ? 'public (will be committed)' : 'private (in .gitignore)'}`);
+        } else {
+          showToast('Error: ' + (data.error || 'Unknown error'), true);
         }
 
         loadSessions(); // Refresh to update UI
@@ -1039,6 +1257,35 @@
       setTimeout(() => toast.classList.remove('show'), 3000);
     }
 
+    async function openHelpModal() {
+      document.getElementById('helpModal').classList.add('show');
+      document.body.style.overflow = 'hidden';
+
+      const content = document.getElementById('helpContent');
+
+      try {
+        const res = await fetch('/help.md');
+        const markdown = await res.text();
+        content.innerHTML = marked.parse(markdown);
+      } catch (err) {
+        content.innerHTML = '<p>Ошибка загрузки справки</p>';
+      }
+    }
+
+    function closeHelpModal(event) {
+      if (!event || event.target === event.currentTarget) {
+        document.getElementById('helpModal').classList.remove('show');
+        document.body.style.overflow = '';
+      }
+    }
+
+    // Close modal on Escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeHelpModal();
+      }
+    });
+
     function escapeHtml(text) {
       const div = document.createElement('div');
       div.textContent = text;
@@ -1046,18 +1293,34 @@
     }
 
     function formatContent(text) {
-      let html = escapeHtml(text);
+      return marked.parse(text);
+    }
 
-      // Code blocks
-      html = html.replace(/```(\w*)\n([\s\S]*?)```/g, '<pre><code>$2</code></pre>');
+    let isAtBottom = false;
 
-      // Inline code
-      html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
+    function toggleScroll() {
+      const panel = document.getElementById('dialogPanel');
+      const btn = document.getElementById('scrollBtn');
 
-      // Bold
-      html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+      if (isAtBottom) {
+        panel.scrollTop = 0;
+        btn.textContent = '↓ Last';
+        btn.title = 'Scroll to last message';
+        isAtBottom = false;
+      } else {
+        panel.scrollTop = panel.scrollHeight;
+        btn.textContent = '↑ First';
+        btn.title = 'Scroll to first message';
+        isAtBottom = true;
+      }
+    }
 
-      return html;
+    // Reset button when new dialog is loaded
+    function resetScrollBtn() {
+      const btn = document.getElementById('scrollBtn');
+      btn.textContent = '↓ Last';
+      btn.title = 'Scroll to last message';
+      isAtBottom = false;
     }
   </script>
 </body>

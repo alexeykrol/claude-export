@@ -51,29 +51,45 @@ const DEBOUNCE_MS = 2000; // Wait 2 seconds after last change
 // Pending summary generation (longer debounce - wait for dialog to "close")
 const pendingSummaries = new Map();
 const SUMMARY_DEBOUNCE_MS = 30000; // Wait 30 seconds of inactivity before generating summary
+// Track active session per project to detect session closure
+const activeSessionPerProject = new Map(); // projectDir -> sessionId
 // Track file sizes to detect actual content changes
 const fileSizes = new Map();
 /**
  * Request summary generation for a dialog
- * Signals via stdout for Claude Code to pick up (when user is active)
- * Or spawns claude --print for non-interactive generation
+ * @param dialogPath - path to the markdown file
+ * @param verbose - enable verbose logging
+ * @param isFinal - true if this is a final summary for a closed dialog
  */
-function requestSummary(dialogPath, verbose = false) {
+function requestSummary(dialogPath, verbose = false, isFinal = false) {
     const log = (msg) => {
         const timestamp = new Date().toLocaleTimeString('ru-RU');
         console.log(`[${timestamp}] ${msg}`);
     };
-    // Check if already has summary
+    // For non-final summaries, skip if already has summary
     const existingSummary = (0, exporter_1.getSummary)(dialogPath);
-    if (existingSummary) {
+    if (existingSummary && !isFinal) {
         if (verbose) {
             log(`Summary already exists for ${path.basename(dialogPath)}`);
         }
         return;
     }
-    log(`Requesting summary for: ${path.basename(dialogPath)}`);
-    // Use claude -p (print mode) for non-interactive generation
-    const prompt = `Прочитай файл ${dialogPath} и создай краткое саммари диалога (1-2 предложения на русском). Затем используй Edit чтобы добавить саммари в начало файла в формате: <!-- SUMMARY: твоё саммари -->`;
+    const summaryType = isFinal ? 'FINAL summary' : 'summary';
+    log(`Requesting ${summaryType} for: ${path.basename(dialogPath)}`);
+    // Different prompts for interim vs final summary
+    const prompt = isFinal
+        ? `Прочитай файл ${dialogPath} — это завершённый диалог с Claude Code.
+
+Создай ФИНАЛЬНОЕ детальное саммари на русском языке:
+1. Главная цель/задача диалога (1 предложение)
+2. Что было сделано (2-3 ключевых результата)
+3. Итоговый статус: завершено/частично/отложено
+
+Формат (3-5 предложений, информативно и полезно для быстрого понимания сути).
+
+Затем используй Edit чтобы ЗАМЕНИТЬ существующее саммари в начале файла в формате:
+<!-- SUMMARY: твоё детальное саммари -->`
+        : `Прочитай файл ${dialogPath} и создай краткое саммари диалога (1-2 предложения на русском). Затем используй Edit чтобы добавить саммари в начало файла в формате: <!-- SUMMARY: твоё саммари -->`;
     const claude = (0, child_process_1.spawn)('claude', [
         '-p',
         '--dangerously-skip-permissions',
@@ -130,6 +146,15 @@ class SessionWatcher {
         if (this.options.verbose) {
             this.log(`DEBUG: ${message}`);
         }
+    }
+    findDialogPath(sessionId) {
+        const dialogFolder = (0, gitignore_1.getDialogFolder)(this.targetProjectPath);
+        if (!fs.existsSync(dialogFolder)) {
+            return null;
+        }
+        const files = fs.readdirSync(dialogFolder);
+        const match = files.find(f => f.includes(sessionId.substring(0, 8)));
+        return match ? path.join(dialogFolder, match) : null;
     }
     scheduleSummary(dialogPath) {
         const filename = path.basename(dialogPath);
@@ -199,6 +224,17 @@ class SessionWatcher {
                 messageCount: dialogMessages.length,
                 lastModified: stat.mtime
             };
+            // Check if previous session was closed (new session appeared)
+            const previousSessionId = activeSessionPerProject.get(projectDir);
+            if (previousSessionId && previousSessionId !== sessionId) {
+                // Previous session is now closed - generate final summary
+                const previousDialogPath = this.findDialogPath(previousSessionId);
+                if (previousDialogPath) {
+                    this.log(`Session ${previousSessionId.substring(0, 8)} closed, generating final summary...`);
+                    requestSummary(previousDialogPath, this.options.verbose, true); // isFinal = true
+                }
+            }
+            activeSessionPerProject.set(projectDir, sessionId);
             // Export to target project's .dialog/ folder
             const result = (0, exporter_1.exportSession)(session, this.targetProjectPath);
             this.log(`Exported: ${path.basename(result.markdownPath)} (${session.messageCount} messages)`);
@@ -237,21 +273,41 @@ class SessionWatcher {
         this.log('Performing initial export...');
         const sessions = (0, exporter_1.getProjectSessions)(this.targetProjectPath);
         let newCount = 0;
+        let updatedCount = 0;
         for (const session of sessions) {
-            if (!(0, exporter_1.isSessionExported)(session.id, this.targetProjectPath)) {
-                const sourcePath = path.join(exporter_1.PROJECTS_DIR, session.projectPath, session.filename);
+            const sourcePath = path.join(exporter_1.PROJECTS_DIR, session.projectPath, session.filename);
+            const exportedPath = this.findDialogPath(session.id);
+            if (!exportedPath) {
+                // Not exported yet - export it
                 fileSizes.set(sourcePath, session.sizeBytes);
                 this.exportFile(sourcePath);
                 newCount++;
             }
             else {
-                // Track existing file sizes
-                const sourcePath = path.join(exporter_1.PROJECTS_DIR, session.projectPath, session.filename);
-                fileSizes.set(sourcePath, session.sizeBytes);
+                // Already exported - check if JSONL is newer than markdown
+                const jsonlStat = fs.statSync(sourcePath);
+                const mdStat = fs.statSync(exportedPath);
+                if (jsonlStat.mtime > mdStat.mtime) {
+                    // JSONL was updated after markdown - re-export
+                    this.log(`Updating: ${path.basename(exportedPath)} (source newer)`);
+                    fileSizes.set(sourcePath, 0); // Force re-export by setting size to 0
+                    this.exportFile(sourcePath);
+                    updatedCount++;
+                }
+                else {
+                    // Track existing file sizes
+                    fileSizes.set(sourcePath, session.sizeBytes);
+                }
             }
         }
-        if (newCount === 0) {
-            this.log('All sessions already exported');
+        if (newCount === 0 && updatedCount === 0) {
+            this.log('All sessions already exported and up to date');
+        }
+        else {
+            if (newCount > 0)
+                this.log(`New exports: ${newCount}`);
+            if (updatedCount > 0)
+                this.log(`Updated: ${updatedCount}`);
         }
         this.log('');
         // Start watching Claude project directory

@@ -75,6 +75,7 @@ export interface DialogInfo {
   size: string;
   sizeBytes: number;
   lastModified: Date;
+  sessionDateTime: Date | null;
 }
 
 // Paths
@@ -422,7 +423,8 @@ export function getExportedDialogs(targetProjectPath: string): DialogInfo[] {
       isPublic: isPublic(filePath, targetProjectPath),
       size: `${(stat.size / 1024).toFixed(0)}KB`,
       sizeBytes: stat.size,
-      lastModified: stat.mtime
+      lastModified: stat.mtime,
+      sessionDateTime: null // Use getDialogWithSummary for full info
     };
   });
 }
@@ -484,14 +486,27 @@ export function exportNewSessions(targetProjectPath: string): ExportedSession[] 
 // Summary management
 
 const SUMMARY_PATTERN = /^<!-- SUMMARY: (.*?) -->$/m;
+const SUMMARIES_SECTION_PATTERN = /## Summaries\n+(?:- (.+)(?:\n|$))/;
 const PENDING_FOLDER = '.pending';
 
 /**
  * Extract summary from dialog file content
+ * Supports both <!-- SUMMARY: ... --> comment and ## Summaries section
  */
 export function extractSummary(content: string): string | null {
-  const match = content.match(SUMMARY_PATTERN);
-  return match ? match[1] : null;
+  // First try the comment format
+  const commentMatch = content.match(SUMMARY_PATTERN);
+  if (commentMatch) {
+    return commentMatch[1];
+  }
+
+  // Fallback to ## Summaries section (first bullet point)
+  const sectionMatch = content.match(SUMMARIES_SECTION_PATTERN);
+  if (sectionMatch) {
+    return sectionMatch[1];
+  }
+
+  return null;
 }
 
 /**
@@ -499,7 +514,7 @@ export function extractSummary(content: string): string | null {
  */
 export function hasSummary(filePath: string): boolean {
   const content = fs.readFileSync(filePath, 'utf-8');
-  return SUMMARY_PATTERN.test(content);
+  return SUMMARY_PATTERN.test(content) || SUMMARIES_SECTION_PATTERN.test(content);
 }
 
 /**
@@ -604,6 +619,35 @@ export function completeTask(taskId: string, projectPath: string): void {
 }
 
 /**
+ * Extract session date/time from markdown content
+ * Pattern: **Date:** DD.MM.YYYY, HH:MM or **Exported:** DD.MM.YYYY, HH:MM:SS
+ */
+export function extractSessionDateTime(content: string): Date | null {
+  // Try Date with time first: **Date:** DD.MM.YYYY, HH:MM
+  const dateWithTime = content.match(/\*\*Date:\*\*\s*(\d{2})\.(\d{2})\.(\d{4}),\s*(\d{2}):(\d{2})/);
+  if (dateWithTime) {
+    const [, day, month, year, hour, minute] = dateWithTime;
+    return new Date(parseInt(year), parseInt(month) - 1, parseInt(day), parseInt(hour), parseInt(minute));
+  }
+
+  // Fallback to Exported timestamp: **Exported:** DD.MM.YYYY, HH:MM:SS
+  const exported = content.match(/\*\*Exported:\*\*\s*(\d{2})\.(\d{2})\.(\d{4}),\s*(\d{2}):(\d{2}):(\d{2})/);
+  if (exported) {
+    const [, day, month, year, hour, minute, second] = exported;
+    return new Date(parseInt(year), parseInt(month) - 1, parseInt(day), parseInt(hour), parseInt(minute), parseInt(second));
+  }
+
+  // Try Date without time: **Date:** DD.MM.YYYY
+  const dateOnly = content.match(/\*\*Date:\*\*\s*(\d{2})\.(\d{2})\.(\d{4})/);
+  if (dateOnly) {
+    const [, day, month, year] = dateOnly;
+    return new Date(parseInt(year), parseInt(month) - 1, parseInt(day), 0, 0, 0);
+  }
+
+  return null;
+}
+
+/**
  * Get dialog info with summary
  */
 export function getDialogWithSummary(filePath: string, projectPath: string): DialogInfo & { summary: string | null } {
@@ -624,6 +668,7 @@ export function getDialogWithSummary(filePath: string, projectPath: string): Dia
     size: `${(stat.size / 1024).toFixed(0)}KB`,
     sizeBytes: stat.size,
     lastModified: stat.mtime,
+    sessionDateTime: extractSessionDateTime(content),
     summary: extractSummary(content)
   };
 }

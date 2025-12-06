@@ -20,3 +20,11 @@ Thumbs.db
 npm-debug.log*
 
 # Claude dialogs (private by default)
+# Add specific files here to keep them private
+
+# Claude dialogs
+.dialog/2025-12-05_session-00000000.md
+.dialog/2025-12-05_session-d56fe9ef.md
+.dialog/2025-12-05_session-ee3fd728.md
+.dialog/2025-12-05_session-5706c1e6.md
+.dialog/2025-12-05_session-c57618da.md

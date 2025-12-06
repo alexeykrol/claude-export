@@ -21,7 +21,8 @@ import {
   getExportedDialogsWithSummaries,
   createSummaryTask,
   getPendingTasks,
-  getSummary
+  getSummary,
+  extractSessionDateTime
 } from './exporter';
 import {
   getDialogFolder,
@@ -98,27 +99,101 @@ app.post('/api/project', (req: Request, res: Response) => {
   }
 });
 
-// API: Get all sessions for current project
+// API: Get all sessions for current project (including orphan markdown files)
 app.get('/api/sessions', (req: Request, res: Response) => {
   try {
     const sessions = getProjectSessions(currentProjectPath);
+    const dialogFolder = getDialogFolder(currentProjectPath);
 
-    // Add export status and visibility to each session
+    // Add export status, visibility, and summary from markdown to each session
     const sessionsWithStatus = sessions.map(s => {
       const exported = isSessionExported(s.id, currentProjectPath);
       const exportPath = getExportedPath(s.id, currentProjectPath);
+
+      // Get summary and sessionDateTime from exported markdown file if available
+      let summaryFromMarkdown: string | null = null;
+      let sessionDateTime: Date | null = null;
+      if (exported && exportPath) {
+        summaryFromMarkdown = getSummary(exportPath);
+        const content = fs.readFileSync(exportPath, 'utf-8');
+        sessionDateTime = extractSessionDateTime(content);
+      }
+
+      // Use markdown summary as first priority, then JSONL summaries
+      const summaries = summaryFromMarkdown
+        ? [summaryFromMarkdown, ...s.summaries]
+        : s.summaries;
+
       return {
         ...s,
+        summaries,
         isExported: exported,
         exportPath,
-        isPublic: exported && exportPath ? isPublic(exportPath, currentProjectPath) : false
+        isPublic: exported && exportPath ? isPublic(exportPath, currentProjectPath) : false,
+        isOrphan: false,
+        sessionDateTime: sessionDateTime || s.lastModified
       };
     });
 
+    // Find orphan markdown files (not linked to any session)
+    const sessionIds = new Set(sessions.map(s => s.id.substring(0, 8)));
+    const orphans: any[] = [];
+
+    if (fs.existsSync(dialogFolder)) {
+      const files = fs.readdirSync(dialogFolder).filter(f => f.endsWith('.md'));
+
+      for (const filename of files) {
+        // Extract session ID from filename: 2025-12-05_session-abc12345.md
+        const match = filename.match(/(\d{4}-\d{2}-\d{2})_session-([a-f0-9]{8})\.md/);
+        if (match) {
+          const [, dateStr, shortId] = match;
+          if (!sessionIds.has(shortId)) {
+            // This is an orphan file
+            const filePath = path.join(dialogFolder, filename);
+            const stat = fs.statSync(filePath);
+            const content = fs.readFileSync(filePath, 'utf-8');
+            const summary = getSummary(filePath);
+            const orphanSessionDateTime = extractSessionDateTime(content);
+
+            // Parse date from filename
+            const [year, month, day] = dateStr.split('-').map(Number);
+            const fileDate = new Date(year, month - 1, day);
+
+            orphans.push({
+              id: shortId,
+              filename,
+              projectName: 'Imported',
+              projectPath: '',
+              date: `${day.toString().padStart(2, '0')}.${month.toString().padStart(2, '0')}.${year}`,
+              dateISO: dateStr,
+              size: `${Math.round(stat.size / 1024)}KB`,
+              sizeBytes: stat.size,
+              summaries: summary ? [summary] : [],
+              messageCount: 0, // Unknown for orphans
+              lastModified: stat.mtime,
+              sessionDateTime: orphanSessionDateTime || stat.mtime,
+              isExported: true,
+              exportPath: filePath,
+              isPublic: isPublic(filePath, currentProjectPath),
+              isOrphan: true
+            });
+          }
+        }
+      }
+    }
+
+    // Merge and sort by date (newest first)
+    const allSessions = [...sessionsWithStatus, ...orphans].sort((a, b) => {
+      const dateA = new Date(a.dateISO);
+      const dateB = new Date(b.dateISO);
+      return dateB.getTime() - dateA.getTime();
+    });
+
     res.json({
-      sessions: sessionsWithStatus,
-      total: sessions.length,
-      exported: sessionsWithStatus.filter(s => s.isExported).length,
+      sessions: allSessions,
+      total: allSessions.length,
+      exported: allSessions.filter(s => s.isExported).length,
+      orphans: orphans.length,
       projectPath: currentProjectPath
     });
   } catch (err) {

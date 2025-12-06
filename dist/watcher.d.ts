@@ -15,6 +15,7 @@ export declare class SessionWatcher {
     constructor(targetProjectPath: string, options?: WatcherOptions);
     private log;
     private debug;
+    private findDialogPath;
     private scheduleSummary;
     private scheduleExport;
     private exportFile;

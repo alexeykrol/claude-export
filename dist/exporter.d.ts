@@ -55,6 +55,7 @@ export interface DialogInfo {
     size: string;
     sizeBytes: number;
     lastModified: Date;
+    sessionDateTime: Date | null;
 }
 export declare const CLAUDE_DIR: string;
 export declare const PROJECTS_DIR: string;
@@ -104,6 +105,7 @@ export declare function getExportedPath(sessionId: string, targetProjectPath: st
 export declare function exportNewSessions(targetProjectPath: string): ExportedSession[];
 /**
  * Extract summary from dialog file content
+ * Supports both <!-- SUMMARY: ... --> comment and ## Summaries section
  */
 export declare function extractSummary(content: string): string | null;
 /**
@@ -145,6 +147,11 @@ export declare function getPendingTasks(projectPath: string): Array<{
  * Complete a task (delete it)
  */
 export declare function completeTask(taskId: string, projectPath: string): void;
+/**
+ * Extract session date/time from markdown content
+ * Pattern: **Date:** DD.MM.YYYY, HH:MM or **Exported:** DD.MM.YYYY, HH:MM:SS
+ */
+export declare function extractSessionDateTime(content: string): Date | null;
 /**
  * Get dialog info with summary
  */
