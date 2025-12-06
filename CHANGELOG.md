@@ -9,6 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- **Watcher cold start reliability** — Initial export теперь использует `exportNewSessions()`
+  - Исправлено: Watcher при холодном старте молчаливо пропускал сессии с ошибками парсинга
+  - Теперь использует ту же надёжную логику, что и CLI команда `export`
+  - Подхватывает ВСЕ неэкспортированные сессии при запуске
+
+- **Chokidar watch configuration** — Упрощена и улучшена конфигурация file watching
+  - Удалён проблемный regex паттерн `/.*(?<!\.jsonl)$/` который блокировал события
+  - Добавлен polling mode (`usePolling: true`) для большей надёжности
+  - Уменьшен `stabilityThreshold` до 500ms для быстрого отклика
+  - Добавлен `depth: 0` для оптимизации
+
 ---
 
 ## [2.2.1] - 2025-12-05
