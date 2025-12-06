@@ -826,7 +826,10 @@
       <div class="panel">
         <div class="panel-header">
           <span class="panel-title" id="leftPanelTitle">Sessions</span>
-          <button class="btn btn-secondary" onclick="refreshData()">Refresh</button>
+          <div class="btn-group">
+            <button class="btn btn-secondary" onclick="forceSync()" title="Force export all new sessions">Force Sync</button>
+            <button class="btn btn-secondary" onclick="refreshData()">Refresh</button>
+          </div>
         </div>
         <div class="panel-content" id="leftPanel">
           <div class="loading">
@@ -886,7 +889,11 @@
     function formatDateTime(sessionDateTime, fallbackDate) {
       if (sessionDateTime) {
         const d = new Date(sessionDateTime);
-        const date = d.toISOString().split('T')[0];
+        // Use local time instead of UTC
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        const date = `${year}-${month}-${day}`;
         const time = d.toTimeString().slice(0, 5);
         return `${date}, ${time}`;
       }
@@ -925,6 +932,28 @@
         loadSessions();
       } else {
         loadDialogs();
+      }
+    }
+
+    async function forceSync() {
+      try {
+        showToast('Syncing all sessions...');
+
+        const res = await fetch('/api/force-export', {
+          method: 'POST'
+        });
+
+        const data = await res.json();
+
+        if (data.success) {
+          showToast(data.message + ` (${data.duration}ms)`);
+          // Refresh the list to show updated sessions
+          refreshData();
+        } else {
+          showToast('Error: ' + (data.error || 'Unknown error'), true);
+        }
+      } catch (err) {
+        showToast('Error: ' + err.message, true);
       }
     }
 

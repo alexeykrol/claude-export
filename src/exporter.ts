@@ -148,7 +148,11 @@ export function formatDate(ts: number): string {
 }
 
 export function formatDateISO(ts: number): string {
-  return new Date(ts).toISOString().split('T')[0];
+  const d = new Date(ts);
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
 }
 
 /**
@@ -492,6 +496,68 @@ export function exportNewSessions(targetProjectPath: string): ExportedSession[] 
   }
 
   return newExports;
+}
+
+/**
+ * Sync current active session (incremental update of the tail)
+ * Finds the currently active JSONL file and appends missing messages to MD
+ */
+export function syncCurrentSession(targetProjectPath: string): { success: boolean; sessionId: string; added: number; markdownPath: string } | null {
+  const sessions = getProjectSessions(targetProjectPath);
+
+  // Find the most recently modified session (current active session)
+  const currentSession = sessions.sort((a, b) =>
+    b.lastModified.getTime() - a.lastModified.getTime()
+  )[0];
+
+  if (!currentSession) {
+    return null;
+  }
+
+  const exportPath = getExportedPath(currentSession.id, targetProjectPath);
+
+  if (!exportPath) {
+    // Session not exported yet - do full export
+    const result = exportSession(currentSession, targetProjectPath);
+    return {
+      success: true,
+      sessionId: currentSession.id,
+      added: result.messageCount,
+      markdownPath: result.markdownPath
+    };
+  }
+
+  // Read existing markdown to count messages
+  const existingMd = fs.readFileSync(exportPath, 'utf-8');
+  const existingMessageCount = (existingMd.match(/^### (User|Assistant)/gm) || []).length;
+
+  // Parse JSONL to get current message count
+  const jsonlPath = path.join(PROJECTS_DIR, currentSession.projectPath, `${currentSession.id}.jsonl`);
+  const messages = parseSession(jsonlPath);
+  const dialogMessages = messages.filter(m => m.type === 'user' || m.type === 'assistant');
+  const currentMessageCount = dialogMessages.length;
+
+  const newMessages = currentMessageCount - existingMessageCount;
+
+  if (newMessages <= 0) {
+    // Already up to date
+    return {
+      success: true,
+      sessionId: currentSession.id,
+      added: 0,
+      markdownPath: exportPath
+    };
+  }
+
+  // Re-export full session (simpler than appending)
+  const result = exportSession(currentSession, targetProjectPath);
+
+  return {
+    success: true,
+    sessionId: currentSession.id,
+    added: newMessages,
+    markdownPath: result.markdownPath
+  };
 }
 
 // Summary management

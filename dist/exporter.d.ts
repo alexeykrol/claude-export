@@ -104,6 +104,16 @@ export declare function getExportedPath(sessionId: string, targetProjectPath: st
  */
 export declare function exportNewSessions(targetProjectPath: string): ExportedSession[];
 /**
+ * Sync current active session (incremental update of the tail)
+ * Finds the currently active JSONL file and appends missing messages to MD
+ */
+export declare function syncCurrentSession(targetProjectPath: string): {
+    success: boolean;
+    sessionId: string;
+    added: number;
+    markdownPath: string;
+} | null;
+/**
  * Extract summary from dialog file content
  * Supports both <!-- SUMMARY: ... --> comment and ## Summaries section
  */

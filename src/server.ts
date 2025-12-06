@@ -11,6 +11,8 @@ import {
   getProjectSessions,
   getExportedDialogs,
   exportSession,
+  exportNewSessions,
+  syncCurrentSession,
   isSessionExported,
   getExportedPath,
   parseSession,
@@ -22,7 +24,8 @@ import {
   createSummaryTask,
   getPendingTasks,
   getSummary,
-  extractSessionDateTime
+  extractSessionDateTime,
+  ExportedSession
 } from './exporter';
 import {
   getDialogFolder,
@@ -374,6 +377,37 @@ app.post('/api/dialog/visibility/:filename', (req: Request, res: Response) => {
       isPublic: makePublic
     });
   } catch (err) {
+    res.status(500).json({ error: String(err) });
+  }
+});
+
+// API: Sync current active session (append missing tail)
+app.post('/api/force-export', (req: Request, res: Response) => {
+  try {
+    console.log('[FORCE-SYNC] Syncing current session...');
+    const startTime = Date.now();
+
+    const result = syncCurrentSession(currentProjectPath);
+    const duration = Date.now() - startTime;
+
+    if (!result) {
+      return res.status(404).json({ error: 'No active session found' });
+    }
+
+    console.log(`[FORCE-SYNC] Completed in ${duration}ms - added ${result.added} message(s)`);
+
+    res.json({
+      success: true,
+      sessionId: result.sessionId.substring(0, 8),
+      added: result.added,
+      filename: path.basename(result.markdownPath),
+      duration,
+      message: result.added === 0
+        ? 'Already up to date'
+        : `Added ${result.added} message(s)`
+    });
+  } catch (err) {
+    console.error('[FORCE-SYNC] Error:', err);
     res.status(500).json({ error: String(err) });
   }
 });
