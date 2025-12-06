@@ -1,3 +1,4 @@
+<!-- SUMMARY: Claude Export: утилита для экспорта диалогов Claude Code в Markdown с управлением видимостью и авто-саммари -->
 <!-- AUTHOR: alexeykrolmini -->
 
 # Claude Code Session
