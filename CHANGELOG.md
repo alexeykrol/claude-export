@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+---
+
+## [2.2.1] - 2025-12-05
+
 ### Added
 - **Force Sync button** — Кнопка для синхронизации текущей активной сессии
   - `syncCurrentSession()` function in `src/exporter.ts`
@@ -103,6 +107,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 | Version | Date | Highlights |
 |---------|------|-----------|
+| 2.2.1 | 2025-12-05 | Force Sync button, timezone bug fix |
+| 2.2.0 | 2025-12-05 | Two-level summaries, Haiku model |
 | 2.1.0 | 2025-12-05 | Auto-summary, pending tasks |
 | 2.0.0 | 2025-12-04 | Web UI, watch mode, API |
 | 1.0.0 | 2025-12-04 | Initial release, core features |
