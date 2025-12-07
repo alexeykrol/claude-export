@@ -9,6 +9,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- **AI Framework v2.0** — Major refactoring of AI documentation structure
+  - Merged CLAUDE.md + COMPLETION_PROTOCOL.md + SECURITY.md into single CLAUDE.md
+  - Renamed PROJECT_SNAPSHOT.md → SNAPSHOT.md
+  - Reduced from 6 files to 4 files in .claude/
+  - Cleaner format: removed noise (emojis, decorations), kept essential info
+  - ~400 lines → ~200 lines (50% reduction)
+
+- **Crash Recovery** — Added session status tracking
+  - `.last_session` marker file with active/clean status
+  - Cold start checks for crashed sessions
+  - Recovery protocol: export missed dialogs, check uncommitted changes
+
+- **Project Structure Cleanup**
+  - Moved `public/` to `src/public/` (fewer folders in root)
+  - Removed `scripts/` folder (ad-hoc build script)
+  - Cleaned `release/`: single install.sh, regenerated archives
+  - Updated server.ts paths for new structure
+
+### Added
+- **/fi** slash command for sprint completion protocol
+
 ---
 
 ## [2.3.0] - 2025-12-06

@@ -41,7 +41,7 @@ const app: Application = express();
 app.use(express.json());
 
 // Serve static files
-app.use(express.static(path.join(__dirname, '..', 'public')));
+app.use(express.static(path.join(__dirname, '..', 'src', 'public')));
 
 // API: Get current project info
 app.get('/api/project', (req: Request, res: Response) => {
@@ -442,7 +442,7 @@ app.get('/api/search', (req: Request, res: Response) => {
 
 // Serve index.html for all other routes
 app.get('*', (req: Request, res: Response) => {
-  res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));
+  res.sendFile(path.join(__dirname, '..', 'src', 'public', 'index.html'));
 });
 
 export function startServer(port: number = 3333, projectPath?: string): void {

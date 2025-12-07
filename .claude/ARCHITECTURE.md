@@ -386,10 +386,9 @@ import { toggleVisibility } from './gitignore';
 
 ## 📚 Related Documentation
 
+- **CLAUDE.md** — AI instructions (includes security rules)
 - **BACKLOG.md** — Current tasks and status
-- **PROJECT_SNAPSHOT.md** — Quick project overview
-- **SECURITY.md** — Security guidelines
-- **PROCESS.md** — Development processes
+- **SNAPSHOT.md** — Quick project overview
 
 ---
 

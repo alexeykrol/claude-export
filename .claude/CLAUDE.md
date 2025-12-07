@@ -1,252 +1,207 @@
-# Контекст проекта для Claude Code
+# CLAUDE.md — AI Agent Instructions
 
-> Этот файл автоматически загружается в контекст каждой сессии Claude Code
+**Project:** Claude Export v2.3.0
+**Purpose:** Export Claude Code dialogs for students (Producer → Consumer)
 
-**Проект:** Claude Export v2.3.0
-**Назначение:** Экспорт диалогов Claude Code для студентов (Producer → Consumer)
+## Triggers
 
----
+**"заверши", "завершить", "финиш", "закончи", "done", "finish":**
+→ Execute Completion Protocol (section below)
 
-## 🚨 ТРИГГЕРЫ КОМАНД
+## Cold Start Protocol
 
-**При словах "заверши", "завершить", "финиш", "закончи", "done", "finish":**
-→ Читай `.claude/COMPLETION_PROTOCOL.md` и выполняй чеклист
+### Step 0: Crash Recovery
 
----
+Check `.claude/.last_session`:
+```bash
+cat .claude/.last_session
+```
 
-## 🤖 ВАЖНО ДЛЯ AI-АГЕНТА
+- If `"status": "active"` → Previous session crashed:
+  1. `npm run dialog:export` — export missed dialogs
+  2. `git status` — check uncommitted changes
+  3. Ask: "Continue or commit first?"
+- If `"status": "clean"` → OK, continue
 
-**При ПЕРВОМ сообщении пользователя в новой сессии ОБЯЗАТЕЛЬНО:**
+Mark session as active:
+```bash
+echo '{"status": "active", "timestamp": "'$(date -Iseconds)'"}' > .claude/.last_session
+```
 
-1. ✅ **Подтверди загрузку контекста:**
-   ```
-   ✅ CLAUDE.md загружен в контекст
-   📂 Текущая директория: [показать pwd]
-   ```
+### Step 1: Load Context
 
-2. ✅ **Проактивно прочитай ключевые файлы:**
-   - `PROJECT_SNAPSHOT.md` - быстрый обзор состояния
-   - `BACKLOG.md` - статус задач
-   - `SECURITY.md` - правила безопасности
+Read `SNAPSHOT.md` — current project state
 
-3. ✅ **Краткий анализ:**
-   - Проект: Экспорт диалогов Claude Code для студентов
-   - Стек: TypeScript, Node.js 18+, Express
-   - Статус: Production (v2.3.0)
+### Step 2: On Demand
 
-4. ✅ **Задай 2-3 КРИТИЧНЫХ вопроса:**
-   - Что хотите делать: новую фичу, исправить баг, или документацию?
-   - Какой модуль затрагивает задача?
+- `BACKLOG.md` — tasks
+- `ARCHITECTURE.md` — modules structure
 
-5. ⏸️ **ВАЖНО:**
-   ```
-   ⏸️ Если сейчас не готовы отвечать - ничего страшного!
-   Просто напишите "дальше" или опишите задачу.
-   ```
+### Step 3: Confirm
 
----
+```
+Context loaded. Directory: [pwd]
+Project: Claude Export v2.3.0 (production)
+```
 
-## 🔄 Протокол "Cold Start"
+## Completion Protocol
 
-### Этап 1: Quick Status Check
+Execute on trigger words. Steps:
 
-1. ✅ **Read PROJECT_SNAPSHOT.md**
-   - Текущая фаза, прогресс, статус модулей
-   - Что сделано, что в работе
+### 1. Build
+```bash
+npm run build
+```
 
-### Этап 2: Context Loading (по необходимости)
+### 2. Update Versions
 
-- `BACKLOG.md` — текущие задачи
-- `ARCHITECTURE.md` — структура модулей
-- `SECURITY.md` — перед изменением кода
+Find and update everywhere:
+```bash
+grep -r "version.*2\." --include="*.json" --include="*.md" --include="*.ts"
+```
 
-### Этап 3: Never Unless Asked
+Locations: `package.json`, `README.md`, `CHANGELOG.md`, `.claude/CLAUDE.md`, `.claude/SNAPSHOT.md`
 
-- COMPLETION_PROTOCOL.md — при команде "заверши"
-- CHANGELOG.md — только при релизе
+### 3. Update Metafiles
 
----
+Required:
+- `.claude/BACKLOG.md` — mark completed tasks `[x]`
+- `.claude/SNAPSHOT.md` — update date and progress
+- `CHANGELOG.md` — add entry
 
-## 🚀 Быстрый старт проекта
+If significant changes:
+- `.claude/ARCHITECTURE.md` — if architecture changed
+- This file — if instructions changed
 
-### Структура модулей
+### 4. Export Dialogs
+```bash
+npm run dialog:export
+```
+
+### 5. Git Commit
+```bash
+git add -A
+git status
+git commit -m "$(cat <<'EOF'
+type: Brief description
+
+- Detail 1
+- Detail 2
+
+🤖 Generated with [Claude Code](https://claude.com/claude-code)
+
+Co-Authored-By: Claude <noreply@anthropic.com>
+EOF
+)"
+```
+
+Commit types: `feat:`, `fix:`, `docs:`, `refactor:`, `chore:`
+
+### 6. Ask About Push
+
+```
+Commit created. Push to remote?
+```
+
+### 7. Mark Session Clean
+```bash
+echo '{"status": "clean", "timestamp": "'$(date -Iseconds)'"}' > .claude/.last_session
+```
+
+## Security Rules
+
+### Principles
+- **Privacy by default** — dialogs private, added to .gitignore
+- **Local processing** — no external APIs
+- **No telemetry** — no data sent anywhere
+
+### Never Do
+- Add external API calls
+- Break privacy model
+- Add telemetry/analytics
+- Ignore TypeScript errors
+- Store data outside `.dialog/`
+
+### Always Do
+- Keep dialogs private by default
+- Process locally
+- Update BACKLOG.md and CHANGELOG.md
+
+## Project Structure
 
 ```
 src/
-├── cli.ts         # CLI интерфейс (init, watch, ui, export, list)
-├── exporter.ts    # JSONL → Markdown конвертация
-├── server.ts      # Express API для веб-интерфейса
+├── cli.ts         # CLI (init, watch, ui, export, list)
+├── exporter.ts    # JSONL → Markdown
+├── server.ts      # Express API
 ├── watcher.ts     # Chokidar file watching
 └── gitignore.ts   # .gitignore manipulation
 ```
 
-### Ключевые концепции
+## Commands
 
-- **Privacy by default** — все диалоги приватные
-- **File system as DB** — нет базы данных, только файлы
-- **Local processing** — данные не покидают машину
-
----
-
-## 📦 Bash-команды
-
-### Разработка
+### Development
 ```bash
-npm run build          # Компиляция TypeScript
-npm run dev            # Запуск через ts-node
+npm run build          # Compile TypeScript
+npm run dev            # Run via ts-node
 ```
 
-### Использование (в целевом проекте)
+### Usage (in target project)
 ```bash
-npm run dialog:export  # Экспорт всех сессий + генерация HTML
-npm run dialog:ui      # Веб-интерфейс (опционально)
-npm run dialog:list    # Список сессий
+npm run dialog:export  # Export + HTML viewer
+npm run dialog:ui      # Web interface
+npm run dialog:watch   # Auto-export
+npm run dialog:list    # List dialogs
 ```
 
-### Протокол завершения спринта
-При команде "заверши" — читай `COMPLETION_PROTOCOL.md` и выполняй полный чеклист:
-1. `npm run build` — проверка сборки
-2. Обновить версии везде
-3. Обновить метафайлы
-4. `npm run dialog:export` — экспорт диалогов
-5. `git commit` — коммит
-6. Спросить про push
+## Code Style
 
-### Git
-```bash
-git status
-git diff
-git log --oneline -n 10
-```
+- ES modules (import/export)
+- Strict typing, avoid `any`
+- camelCase functions/variables
+- PascalCase interfaces
+- UPPER_SNAKE_CASE constants
 
----
+## Data Flow
 
-## 🎨 Кодстайл
-
-### TypeScript
-- ES-модули (import/export)
-- Строгая типизация, избегать `any`
-- Функциональный стиль где уместно
-
-### Именование
-- camelCase для функций и переменных
-- PascalCase для интерфейсов
-- UPPER_SNAKE_CASE для констант
-
----
-
-## 🔐 Безопасность (КРИТИЧНО!)
-
-**📖 ПОЛНАЯ ПОЛИТИКА:** SECURITY.md
-
-**Ключевые правила для claude-export:**
-- ✅ Privacy by default — диалоги в .gitignore
-- ✅ Local processing — нет внешних API
-- ✅ No telemetry — никакой отправки данных
-- ❌ Не добавлять external dependencies без необходимости
-- ❌ Не ломать privacy model
-
----
-
-## 📋 Важные детали проекта
-
-### Хранение данных
-- **Source:** `~/.claude/projects/` (Claude Code сессии)
-- **Output:** `dialog/` (Markdown файлы)
-- **Viewer:** `html-viewer/index.html` (для студентов)
-- **Visibility:** `.gitignore` entries
-
-### API Endpoints (server.ts)
-```
-GET  /api/project           # Info о проекте
-GET  /api/sessions          # Список Claude сессий
-GET  /api/dialogs           # Список экспортированных
-POST /api/dialog/toggle/:f  # Toggle visibility
-GET  /api/search?q=query    # Поиск
-```
-
-### Watch Flow
 ```
 ~/.claude/projects/*.jsonl
-    → Chokidar detect change
+    → Chokidar detect
     → Debounce 2s
     → Export to dialog/
     → Add to .gitignore
     → Schedule summary (30min)
 ```
 
----
+## API Endpoints
 
-## 🐛 Типичные проблемы
-
-**Build errors:**
-```bash
-rm -rf dist/
-npm run build
+```
+GET  /api/project           # Project info
+GET  /api/sessions          # Claude sessions list
+GET  /api/dialogs           # Exported dialogs
+POST /api/dialog/toggle/:f  # Toggle visibility
+GET  /api/search?q=query    # Search
 ```
 
-**Watch не работает:**
-- Проверить есть ли сессии в ~/.claude/projects/
-- Проверить правильный ли путь к проекту
+## State Files
 
-**UI не открывается:**
-- Порт 3333 занят? Использовать `--port`
+| File | Purpose |
+|------|---------|
+| `SNAPSHOT.md` | Project state for cold start |
+| `BACKLOG.md` | Tasks status |
+| `ARCHITECTURE.md` | Code structure |
+| `.last_session` | Session status (clean/active) |
 
----
+## Slash Commands
 
-## 📝 Slash-команды
+Available in `.claude/commands/`:
+`/fix`, `/feature`, `/review`, `/test`, `/security`, `/explain`, `/refactor`, `/optimize`, `/commit`, `/fi`
 
-Доступные команды в `.claude/commands/`:
+## Troubleshooting
 
-- `/fix` — найти и исправить баг
-- `/feature` — спланировать новую фичу
-- `/review` — code review
-- `/test` — тестирование
-- `/security` — security audit
-- `/explain` — объяснить код
-- `/refactor` — рефакторинг
-- `/optimize` — оптимизация
-- `/commit` — создать commit
-- `/ui` — Web UI для диалогов (опционально)
+**Build errors:** `rm -rf dist/ && npm run build`
+**Watch not working:** Check ~/.claude/projects/ has sessions
+**UI won't open:** Port 3333 busy? Use `--port`
 
 ---
-
-## 🎯 Приоритеты
-
-1. **Privacy** — сохранять privacy by default
-2. **Simplicity** — минимум зависимостей
-3. **Documentation** — обновлять при изменениях
-4. **Performance** — эффективная работа с файлами
-
----
-
-## ⚠️ Предупреждения
-
-- НЕ добавляй external API calls
-- НЕ ломай privacy by default
-- НЕ игнорируй TypeScript ошибки
-- НЕ забывай обновлять .claude/BACKLOG.md и CHANGELOG.md
-
----
-
-## 📚 Документация проекта
-
-### Для людей (в корне)
-| Файл | Назначение |
-|------|-----------|
-| README.md | Полное описание проекта |
-| CHANGELOG.md | История изменений |
-
-### Для AI (в .claude/)
-| Файл | Назначение |
-|------|-----------|
-| PROJECT_SNAPSHOT.md | Быстрый обзор для Cold Start |
-| BACKLOG.md | Задачи и статус |
-| ARCHITECTURE.md | Структура и решения |
-| SECURITY.md | Безопасность |
-| COMPLETION_PROTOCOL.md | Протокол завершения спринта |
-
----
-
-*Последнее обновление: 2025-12-06*
-*Version: 2.3.0*
+*Version: 2.3.0 | Updated: 2025-12-07*

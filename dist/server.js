@@ -52,7 +52,7 @@ let watcher = null;
 const app = (0, express_1.default)();
 app.use(express_1.default.json());
 // Serve static files
-app.use(express_1.default.static(path.join(__dirname, '..', 'public')));
+app.use(express_1.default.static(path.join(__dirname, '..', 'src', 'public')));
 // API: Get current project info
 app.get('/api/project', (req, res) => {
     try {
@@ -400,7 +400,7 @@ app.get('/api/search', (req, res) => {
 });
 // Serve index.html for all other routes
 app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));
+    res.sendFile(path.join(__dirname, '..', 'src', 'public', 'index.html'));
 });
 function startServer(port = 3333, projectPath) {
     if (projectPath) {

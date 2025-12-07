@@ -2,7 +2,7 @@
 
 **Project:** Claude Export
 **Version:** 2.3.0
-**Last Updated:** 2025-12-06
+**Last Updated:** 2025-12-07
 
 > **📋 Authoritative Source:** This is the SINGLE SOURCE OF TRUTH for:
 > - ✅ **Detailed implementation plan** with checklists
@@ -59,7 +59,7 @@
 
 - [x] **Web UI** - Веб-интерфейс для управления диалогами
   - Implemented: 2025-12-04
-  - Files: `src/server.ts`, `public/`
+  - Files: `src/server.ts`, `src/public/`
   - Notes: Express сервер на порту 3333
 
 - [x] **Auto-Summary** - Автоматическая генерация саммари
@@ -90,17 +90,17 @@
 
 - [x] **Two-Level Summary System** - Двухуровневые саммари (SHORT + FULL)
   - Implemented: 2025-12-05
-  - Files: `src/watcher.ts:62-93`, `src/exporter.ts:460-485`, `public/index.html`
+  - Files: `src/watcher.ts:62-93`, `src/exporter.ts:460-485`, `src/public/index.html`
   - Notes: SUMMARY_SHORT для списка, SUMMARY_FULL для деталей. Генерация через Haiku с debounce 30 минут
 
 - [x] **Force Sync Button** - Синхронизация текущей активной сессии
   - Implemented: 2025-12-05
-  - Files: `src/exporter.ts:501-561`, `src/server.ts:384-413`, `public/index.html:827-954`
+  - Files: `src/exporter.ts:501-561`, `src/server.ts:333-361`, `src/public/index.html`
   - Notes: Кнопка для принудительной синхронизации текущей активной сессии. Сравнивает JSONL vs MD, добавляет недостающие сообщения.
 
 - [x] **Timezone Fix** - Корректная датировка файлов по локальному времени
   - Implemented: 2025-12-05
-  - Files: `src/exporter.ts:150-156`, `public/index.html:888-901`
+  - Files: `src/exporter.ts:150-156`, `src/public/index.html`
   - Notes: Исправлен баг с UTC конвертацией (20:10 PST → 04:10 UTC следующего дня). Теперь используется локальное время.
 
 - [x] **Duplicate Prevention** - Предотвращение дубликатов файлов при изменении формата
@@ -216,10 +216,10 @@
 ## 📚 Documentation Tasks
 
 - [x] **README.md** - Полная документация
+- [x] **CLAUDE.md** - AI instructions (merged)
 - [x] **BACKLOG.md** - Этот файл
 - [x] **ARCHITECTURE.md** - Архитектура
-- [x] **SECURITY.md** - Безопасность
-- [x] **PROCESS.md** - Процессы разработки
+- [x] **SNAPSHOT.md** - Project state
 - [x] **CHANGELOG.md** - История изменений
 
 ---
@@ -240,19 +240,33 @@
 
 ## 📋 Sprint Planning
 
-### Current Sprint: Bugfix & Stability Sprint
-**Duration:** 2025-12-06
-**Goal:** Исправить критические баги после timezone fix и улучшить cold start
+### Current Sprint: AI Framework v2.0
+**Duration:** 2025-12-07
+**Goal:** Рефакторинг AI documentation structure, cleanup проекта
 
 #### Sprint Backlog
+- [x] Merge CLAUDE.md + COMPLETION_PROTOCOL.md + SECURITY.md → single CLAUDE.md
+- [x] Rename PROJECT_SNAPSHOT.md → SNAPSHOT.md
+- [x] Reduce .claude/ from 6 to 4 files
+- [x] Move public/ to src/public/
+- [x] Remove scripts/ folder (ad-hoc build script)
+- [x] Clean release/: single install.sh, remove duplicates
+- [x] Add /fi slash command for completion protocol
+- [x] Add crash recovery (.last_session with active/clean status)
+- [x] Обновить CHANGELOG.md
+- [x] Обновить SNAPSHOT.md
+- [x] Обновить BACKLOG.md
+
+### Previous Sprint: Bugfix & Stability Sprint
+**Duration:** 2025-12-06
+**Status:** ✅ Completed
+
+#### Completed Tasks
 - [x] Исправить дубликаты файлов при изменении формата даты
 - [x] Генерация финальных summary для закрытых сессий при cold start
 - [x] Замена старого формата summary на новый (SUMMARY_SHORT/FULL)
 - [x] Передача prompt через stdin в Claude CLI
 - [x] Улучшить watcher cold start reliability
-- [x] Обновить CHANGELOG.md
-- [x] Обновить PROJECT_SNAPSHOT.md
-- [x] Обновить BACKLOG.md
 
 ### Previous Sprint: Documentation & Framework Integration
 **Duration:** 2025-12-05
@@ -260,10 +274,9 @@
 
 #### Completed Tasks
 - [x] Создать BACKLOG.md
-- [x] Создать PROJECT_SNAPSHOT.md
+- [x] Создать SNAPSHOT.md
 - [x] Создать ARCHITECTURE.md
-- [x] Создать SECURITY.md
-- [x] Создать PROCESS.md
+- [x] Создать CLAUDE.md (merged instructions)
 - [x] Создать CHANGELOG.md
 - [x] Добавить .claude/commands/
 - [x] Обновить CLAUDE.md
@@ -313,4 +326,4 @@ Low Impact, Long Term → Do LAST
 ---
 
 *This is the SINGLE SOURCE OF TRUTH for project status*
-*Last updated: 2025-12-06*
+*Last updated: 2025-12-07*
