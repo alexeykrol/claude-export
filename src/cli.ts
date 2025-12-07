@@ -7,7 +7,6 @@
  *   ui [path]     Start web UI for browsing dialogs
  *   export [path] Export all sessions for a project
  *   list [path]   List all sessions for a project
- *   tasks [path]  Show pending summary tasks
  *   help          Show help
  */
 
@@ -19,7 +18,6 @@ import {
   getProjectSessions,
   exportNewSessions,
   getExportedDialogs,
-  getPendingTasks,
   PROJECTS_DIR,
   generateStaticHtml
 } from './exporter';
@@ -41,7 +39,6 @@ Commands:
   ui [path]       Start web UI for browsing and managing dialogs
   export [path]   Export all sessions once and exit
   list [path]     List all available sessions for the project
-  tasks [path]    Show pending summary tasks (for Claude to process)
   help            Show this help message
 
 Arguments:
@@ -128,32 +125,6 @@ function showList(projectPath: string): void {
   }
 
   console.log(`\nTotal: ${sessions.length} sessions, ${dialogs.length} exported`);
-}
-
-function showTasks(projectPath: string): void {
-  console.log(`\nProject: ${projectPath}`);
-
-  const tasks = getPendingTasks(projectPath);
-
-  if (tasks.length === 0) {
-    console.log('No pending tasks.');
-    return;
-  }
-
-  console.log(`\nPending summary tasks: ${tasks.length}\n`);
-  console.log('File                                    | Created');
-  console.log('-'.repeat(60));
-
-  for (const task of tasks) {
-    const created = new Date(task.createdAt).toLocaleString('ru-RU');
-    console.log(`${task.filename.padEnd(40)}| ${created}`);
-  }
-
-  console.log('\n' + '='.repeat(60));
-  console.log('To generate summaries, ask Claude:');
-  console.log('  "Process pending summary tasks"');
-  console.log('  or');
-  console.log('  "Generate summaries for dialogs in .dialog/.pending/"');
 }
 
 async function runExport(projectPath: string): Promise<void> {
@@ -304,11 +275,6 @@ async function main(): Promise<void> {
     case 'ls':
     case 'l':
       showList(projectPath);
-      break;
-
-    case 'tasks':
-    case 't':
-      showTasks(projectPath);
       break;
 
     case 'help':

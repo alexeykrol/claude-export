@@ -21,8 +21,6 @@ import {
   toMarkdown,
   SessionInfo,
   getExportedDialogsWithSummaries,
-  createSummaryTask,
-  getPendingTasks,
   getSummary,
   extractSessionDateTime,
   ExportedSession
@@ -208,7 +206,6 @@ app.get('/api/sessions', (req: Request, res: Response) => {
 app.get('/api/dialogs', (req: Request, res: Response) => {
   try {
     const dialogs = getExportedDialogsWithSummaries(currentProjectPath);
-    const pending = getPendingTasks(currentProjectPath);
 
     res.json({
       dialogs,
@@ -216,57 +213,8 @@ app.get('/api/dialogs', (req: Request, res: Response) => {
       public: dialogs.filter(d => d.isPublic).length,
       private: dialogs.filter(d => !d.isPublic).length,
       withSummary: dialogs.filter(d => d.summary).length,
-      pendingTasks: pending.length,
       projectPath: currentProjectPath
     });
-  } catch (err) {
-    res.status(500).json({ error: String(err) });
-  }
-});
-
-// API: Request summary generation for a dialog
-app.post('/api/summary/request/:filename', (req: Request, res: Response) => {
-  try {
-    const { filename } = req.params;
-    const dialogFolder = getDialogFolder(currentProjectPath);
-    const filePath = path.join(dialogFolder, filename);
-
-    if (!fs.existsSync(filePath)) {
-      return res.status(404).json({ error: 'Dialog not found' });
-    }
-
-    // Check if already has summary
-    const existingSummary = getSummary(filePath);
-    if (existingSummary) {
-      return res.json({
-        success: true,
-        alreadyExists: true,
-        summary: existingSummary
-      });
-    }
-
-    // Create task
-    const taskId = createSummaryTask(filename, currentProjectPath);
-
-    // Signal to Claude Code via stdout (monitored by BashOutput)
-    const dialogPath = path.join(getDialogFolder(currentProjectPath), filename);
-    console.log(`[CLAUDE_TASK] Generate summary for: ${dialogPath}`);
-
-    res.json({
-      success: true,
-      taskId,
-      message: 'Summary task created.'
-    });
-  } catch (err) {
-    res.status(500).json({ error: String(err) });
-  }
-});
-
-// API: Get pending tasks
-app.get('/api/tasks/pending', (req: Request, res: Response) => {
-  try {
-    const tasks = getPendingTasks(currentProjectPath);
-    res.json({ tasks, count: tasks.length });
   } catch (err) {
     res.status(500).json({ error: String(err) });
   }

@@ -577,7 +577,6 @@ const SUMMARY_PATTERN = /^<!-- SUMMARY: (.*?) -->$/m;
 const SUMMARY_SHORT_PATTERN = /^<!-- SUMMARY_SHORT: (.*?) -->$/m;
 const SUMMARY_FULL_PATTERN = /^<!-- SUMMARY_FULL: (.*?) -->$/m;
 const SUMMARIES_SECTION_PATTERN = /## Summaries\n+(?:- (.+)(?:\n|$))/;
-const PENDING_FOLDER = '.pending';
 
 /**
  * Extract summary from dialog file content
@@ -660,81 +659,6 @@ export function setSummary(filePath: string, summary: string): void {
   fs.writeFileSync(filePath, content);
 }
 
-/**
- * Get pending folder path
- */
-export function getPendingFolder(projectPath: string): string {
-  return path.join(getDialogFolder(projectPath), PENDING_FOLDER);
-}
-
-/**
- * Ensure pending folder exists
- */
-export function ensurePendingFolder(projectPath: string): string {
-  const pendingPath = getPendingFolder(projectPath);
-  if (!fs.existsSync(pendingPath)) {
-    fs.mkdirSync(pendingPath, { recursive: true });
-  }
-  return pendingPath;
-}
-
-/**
- * Create a summary request task
- */
-export function createSummaryTask(filename: string, projectPath: string): string {
-  const pendingFolder = ensurePendingFolder(projectPath);
-  const taskId = `summary-${Date.now()}`;
-  const taskPath = path.join(pendingFolder, `${taskId}.json`);
-
-  const task = {
-    id: taskId,
-    type: 'summary',
-    filename,
-    dialogPath: path.join(getDialogFolder(projectPath), filename),
-    createdAt: new Date().toISOString(),
-    status: 'pending'
-  };
-
-  fs.writeFileSync(taskPath, JSON.stringify(task, null, 2));
-  return taskId;
-}
-
-/**
- * Get all pending tasks
- */
-export function getPendingTasks(projectPath: string): Array<{
-  id: string;
-  type: string;
-  filename: string;
-  dialogPath: string;
-  createdAt: string;
-  status: string;
-}> {
-  const pendingFolder = getPendingFolder(projectPath);
-
-  if (!fs.existsSync(pendingFolder)) {
-    return [];
-  }
-
-  const files = fs.readdirSync(pendingFolder).filter(f => f.endsWith('.json'));
-
-  return files.map(f => {
-    const content = fs.readFileSync(path.join(pendingFolder, f), 'utf-8');
-    return JSON.parse(content);
-  });
-}
-
-/**
- * Complete a task (delete it)
- */
-export function completeTask(taskId: string, projectPath: string): void {
-  const pendingFolder = getPendingFolder(projectPath);
-  const taskPath = path.join(pendingFolder, `${taskId}.json`);
-
-  if (fs.existsSync(taskPath)) {
-    fs.unlinkSync(taskPath);
-  }
-}
 
 /**
  * Extract session date/time from markdown content

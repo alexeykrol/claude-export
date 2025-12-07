@@ -141,33 +141,6 @@ export declare function getSummaryFull(filePath: string): string | null;
  */
 export declare function setSummary(filePath: string, summary: string): void;
 /**
- * Get pending folder path
- */
-export declare function getPendingFolder(projectPath: string): string;
-/**
- * Ensure pending folder exists
- */
-export declare function ensurePendingFolder(projectPath: string): string;
-/**
- * Create a summary request task
- */
-export declare function createSummaryTask(filename: string, projectPath: string): string;
-/**
- * Get all pending tasks
- */
-export declare function getPendingTasks(projectPath: string): Array<{
-    id: string;
-    type: string;
-    filename: string;
-    dialogPath: string;
-    createdAt: string;
-    status: string;
-}>;
-/**
- * Complete a task (delete it)
- */
-export declare function completeTask(taskId: string, projectPath: string): void;
-/**
  * Extract session date/time from markdown content
  * Pattern: **Date:** DD.MM.YYYY, HH:MM or **Exported:** DD.MM.YYYY, HH:MM:SS
  */

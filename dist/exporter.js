@@ -62,11 +62,6 @@ exports.getSummary = getSummary;
 exports.getSummaryShort = getSummaryShort;
 exports.getSummaryFull = getSummaryFull;
 exports.setSummary = setSummary;
-exports.getPendingFolder = getPendingFolder;
-exports.ensurePendingFolder = ensurePendingFolder;
-exports.createSummaryTask = createSummaryTask;
-exports.getPendingTasks = getPendingTasks;
-exports.completeTask = completeTask;
 exports.extractSessionDateTime = extractSessionDateTime;
 exports.getDialogWithSummary = getDialogWithSummary;
 exports.getExportedDialogsWithSummaries = getExportedDialogsWithSummaries;
@@ -504,7 +499,6 @@ const SUMMARY_PATTERN = /^<!-- SUMMARY: (.*?) -->$/m;
 const SUMMARY_SHORT_PATTERN = /^<!-- SUMMARY_SHORT: (.*?) -->$/m;
 const SUMMARY_FULL_PATTERN = /^<!-- SUMMARY_FULL: (.*?) -->$/m;
 const SUMMARIES_SECTION_PATTERN = /## Summaries\n+(?:- (.+)(?:\n|$))/;
-const PENDING_FOLDER = '.pending';
 /**
  * Extract summary from dialog file content
  * Supports both <!-- SUMMARY: ... --> comment and ## Summaries section
@@ -576,64 +570,6 @@ function setSummary(filePath, summary) {
         content = `<!-- SUMMARY: ${summary} -->\n\n${content}`;
     }
     fs.writeFileSync(filePath, content);
-}
-/**
- * Get pending folder path
- */
-function getPendingFolder(projectPath) {
-    return path.join((0, gitignore_1.getDialogFolder)(projectPath), PENDING_FOLDER);
-}
-/**
- * Ensure pending folder exists
- */
-function ensurePendingFolder(projectPath) {
-    const pendingPath = getPendingFolder(projectPath);
-    if (!fs.existsSync(pendingPath)) {
-        fs.mkdirSync(pendingPath, { recursive: true });
-    }
-    return pendingPath;
-}
-/**
- * Create a summary request task
- */
-function createSummaryTask(filename, projectPath) {
-    const pendingFolder = ensurePendingFolder(projectPath);
-    const taskId = `summary-${Date.now()}`;
-    const taskPath = path.join(pendingFolder, `${taskId}.json`);
-    const task = {
-        id: taskId,
-        type: 'summary',
-        filename,
-        dialogPath: path.join((0, gitignore_1.getDialogFolder)(projectPath), filename),
-        createdAt: new Date().toISOString(),
-        status: 'pending'
-    };
-    fs.writeFileSync(taskPath, JSON.stringify(task, null, 2));
-    return taskId;
-}
-/**
- * Get all pending tasks
- */
-function getPendingTasks(projectPath) {
-    const pendingFolder = getPendingFolder(projectPath);
-    if (!fs.existsSync(pendingFolder)) {
-        return [];
-    }
-    const files = fs.readdirSync(pendingFolder).filter(f => f.endsWith('.json'));
-    return files.map(f => {
-        const content = fs.readFileSync(path.join(pendingFolder, f), 'utf-8');
-        return JSON.parse(content);
-    });
-}
-/**
- * Complete a task (delete it)
- */
-function completeTask(taskId, projectPath) {
-    const pendingFolder = getPendingFolder(projectPath);
-    const taskPath = path.join(pendingFolder, `${taskId}.json`);
-    if (fs.existsSync(taskPath)) {
-        fs.unlinkSync(taskPath);
-    }
 }
 /**
  * Extract session date/time from markdown content
