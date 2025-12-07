@@ -61,15 +61,17 @@ claude-export/
 │
 ├── package.json
 ├── tsconfig.json
-├── README.md                     # Полная документация
-├── CLAUDE.md                     # Контекст для AI
+├── README.md                     # Для людей: документация
+├── CHANGELOG.md                  # Для людей: история
 │
-├── BACKLOG.md                    # Статус задач
-├── PROJECT_SNAPSHOT.md           # Этот файл
-├── ARCHITECTURE.md               # Архитектура
-├── SECURITY.md                   # Безопасность
-├── PROCESS.md                    # Процессы разработки
-└── CHANGELOG.md                  # История изменений
+└── .claude/                      # Для AI
+    ├── CLAUDE.md                 # Контекст (автозагрузка)
+    ├── PROJECT_SNAPSHOT.md       # Этот файл
+    ├── BACKLOG.md                # Статус задач
+    ├── ARCHITECTURE.md           # Архитектура
+    ├── SECURITY.md               # Безопасность
+    ├── PROCESS.md                # Процессы разработки
+    └── commands/                 # Slash-команды
 ```
 
 ---
