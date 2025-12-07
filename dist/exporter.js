@@ -70,6 +70,7 @@ exports.completeTask = completeTask;
 exports.extractSessionDateTime = extractSessionDateTime;
 exports.getDialogWithSummary = getDialogWithSummary;
 exports.getExportedDialogsWithSummaries = getExportedDialogsWithSummaries;
+exports.generateStaticHtml = generateStaticHtml;
 const fs = __importStar(require("fs"));
 const path = __importStar(require("path"));
 const os = __importStar(require("os"));
@@ -695,4 +696,94 @@ function getDialogWithSummary(filePath, projectPath) {
 function getExportedDialogsWithSummaries(targetProjectPath) {
     const dialogFiles = (0, gitignore_1.getDialogFiles)(targetProjectPath);
     return dialogFiles.map(filePath => getDialogWithSummary(filePath, targetProjectPath));
+}
+// ===== Static HTML Viewer Generation =====
+/**
+ * Get template path for static HTML viewer
+ */
+function getTemplatePath() {
+    // First try relative to this file (for development)
+    const devPath = path.join(__dirname, '..', 'html-viewer', 'template.html');
+    if (fs.existsSync(devPath)) {
+        return devPath;
+    }
+    // Try from .claude-export installation
+    const installPath = path.join(process.cwd(), '.claude-export', 'html-viewer', 'template.html');
+    if (fs.existsSync(installPath)) {
+        return installPath;
+    }
+    throw new Error('Template not found. Make sure html-viewer/template.html exists.');
+}
+/**
+ * Generate static HTML viewer with embedded dialog data
+ * Creates index.html in dialog-viewer/ folder that can be opened directly in browser
+ * This folder is visible (not hidden) for easy sharing
+ */
+function generateStaticHtml(targetProjectPath) {
+    const viewerFolder = path.join(targetProjectPath, 'dialog-viewer');
+    // Ensure folder exists
+    if (!fs.existsSync(viewerFolder)) {
+        fs.mkdirSync(viewerFolder, { recursive: true });
+    }
+    const outputPath = path.join(viewerFolder, 'index.html');
+    // Get all dialogs with full content
+    const dialogFiles = (0, gitignore_1.getDialogFiles)(targetProjectPath);
+    const dialogsData = dialogFiles.map(filePath => {
+        const stat = fs.statSync(filePath);
+        const filename = path.basename(filePath);
+        const content = fs.readFileSync(filePath, 'utf-8');
+        const match = filename.match(/^(\d{4}-\d{2}-\d{2})_session-([a-f0-9]+)\.md$/);
+        const date = match ? match[1] : 'Unknown';
+        const sessionId = match ? match[2] : filename;
+        // Extract summaries
+        const shortMatch = content.match(SUMMARY_SHORT_PATTERN);
+        const fullMatch = content.match(SUMMARY_FULL_PATTERN);
+        const summaryShort = shortMatch ? shortMatch[1] : extractSummary(content);
+        const summaryFull = fullMatch ? fullMatch[1] : extractSummary(content);
+        // Extract date/time from content
+        const sessionDateTime = extractSessionDateTime(content);
+        return {
+            filename,
+            date,
+            sessionId,
+            isPublic: (0, gitignore_1.isPublic)(filePath, targetProjectPath),
+            size: `${(stat.size / 1024).toFixed(0)}KB`,
+            summary: summaryShort,
+            summaryShort,
+            summaryFull,
+            sessionDateTime: sessionDateTime ? sessionDateTime.toISOString() : null,
+            content: content
+        };
+    });
+    // Sort by date (newest first)
+    dialogsData.sort((a, b) => {
+        const dateA = a.sessionDateTime ? new Date(a.sessionDateTime).getTime() : 0;
+        const dateB = b.sessionDateTime ? new Date(b.sessionDateTime).getTime() : 0;
+        return dateB - dateA;
+    });
+    // Project info
+    const projectName = path.basename(targetProjectPath);
+    const projectInfo = {
+        name: projectName,
+        path: targetProjectPath,
+        dialogCount: dialogsData.length,
+        generatedAt: new Date().toISOString()
+    };
+    // Read template
+    const templatePath = getTemplatePath();
+    let template = fs.readFileSync(templatePath, 'utf-8');
+    // Replace placeholders
+    const now = new Date();
+    const dateStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+    const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+    const dateTimeStr = `${dateStr}, ${timeStr}`;
+    template = template.replace('__DIALOGS_DATA__', JSON.stringify(dialogsData));
+    template = template.replace('__PROJECT_INFO__', JSON.stringify(projectInfo));
+    template = template.replace('__VERSION__', 'v2.3.0');
+    template = template.replace('__DATE__', dateStr);
+    template = template.replace('__DATETIME__', dateTimeStr);
+    template = template.replace('__PROJECT_NAME__', projectName);
+    // Write output
+    fs.writeFileSync(outputPath, template);
+    return outputPath;
 }

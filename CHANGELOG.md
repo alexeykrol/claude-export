@@ -11,6 +11,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.3.0] - 2025-12-06
+
+### Added
+- **Static HTML Viewer** — Самодостаточный HTML-просмотрщик для студентов/консьюмеров
+  - Генерируется в `dialog-viewer/index.html` — видимая папка, можно открыть двойным кликом
+  - Все данные диалогов встроены как JSON внутри HTML
+  - Не требует Node.js, сервера или npm — просто открыть в браузере
+  - Полный функционал: список сессий, просмотр диалогов, Markdown рендеринг
+  - `html-viewer/template.html` — шаблон статического viewer'а
+  - `generateStaticHtml()` function in `src/exporter.ts`
+  - Интеграция с watcher — автообновление при каждом экспорте
+
+### Changed
+- **Producer/Consumer pattern** — Разделение на полное окружение (учитель) и read-only HTML (студент)
+  - Учитель: `npm run dialog:watch` + `npm run dialog:ui` для полного контроля
+  - Студент: Просто открывает `dialog-viewer/index.html` в браузере
+
+---
+
 ## [2.2.2] - 2025-12-06
 
 ### Added
@@ -147,6 +166,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 | Version | Date | Highlights |
 |---------|------|-----------|
+| 2.3.0 | 2025-12-06 | Static HTML Viewer for students |
+| 2.2.2 | 2025-12-06 | Final summaries, duplicate fix |
 | 2.2.1 | 2025-12-05 | Force Sync button, timezone bug fix |
 | 2.2.0 | 2025-12-05 | Two-level summaries, Haiku model |
 | 2.1.0 | 2025-12-05 | Auto-summary, pending tasks |

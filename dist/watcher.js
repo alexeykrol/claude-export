@@ -259,6 +259,15 @@ class SessionWatcher {
             // Export to target project's .dialog/ folder
             const result = (0, exporter_1.exportSession)(session, this.targetProjectPath);
             this.log(`Exported: ${path.basename(result.markdownPath)} (${session.messageCount} messages)`);
+            // Regenerate static HTML viewer
+            try {
+                (0, exporter_1.generateStaticHtml)(this.targetProjectPath);
+                this.log('Updated index.html');
+            }
+            catch (err) {
+                // Non-fatal error - just log
+                this.log(`Warning: Could not update index.html: ${err}`);
+            }
             // Schedule summary generation (will run after inactivity period)
             this.scheduleSummary(result.markdownPath);
         }
@@ -305,6 +314,14 @@ class SessionWatcher {
         }
         else {
             this.log(`New exports: ${exported.length}`);
+        }
+        // Generate static HTML viewer
+        try {
+            const htmlPath = (0, exporter_1.generateStaticHtml)(this.targetProjectPath);
+            this.log(`Generated: ${path.basename(htmlPath)}`);
+        }
+        catch (err) {
+            this.log(`Warning: Could not generate index.html: ${err}`);
         }
         this.log('');
         // Generate final summaries for closed sessions (all except the most recent one)

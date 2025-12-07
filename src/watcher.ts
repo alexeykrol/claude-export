@@ -19,7 +19,8 @@ import {
   getSummary,
   getSummaryShort,
   formatTimestamp,
-  exportNewSessions
+  exportNewSessions,
+  generateStaticHtml
 } from './exporter';
 import { getDialogFolder, ensureDialogFolder } from './gitignore';
 
@@ -283,6 +284,15 @@ export class SessionWatcher {
 
       this.log(`Exported: ${path.basename(result.markdownPath)} (${session.messageCount} messages)`);
 
+      // Regenerate static HTML viewer
+      try {
+        generateStaticHtml(this.targetProjectPath);
+        this.log('Updated index.html');
+      } catch (err) {
+        // Non-fatal error - just log
+        this.log(`Warning: Could not update index.html: ${err}`);
+      }
+
       // Schedule summary generation (will run after inactivity period)
       this.scheduleSummary(result.markdownPath);
 
@@ -339,6 +349,15 @@ export class SessionWatcher {
     } else {
       this.log(`New exports: ${exported.length}`);
     }
+
+    // Generate static HTML viewer
+    try {
+      const htmlPath = generateStaticHtml(this.targetProjectPath);
+      this.log(`Generated: ${path.basename(htmlPath)}`);
+    } catch (err) {
+      this.log(`Warning: Could not generate index.html: ${err}`);
+    }
+
     this.log('');
 
     // Generate final summaries for closed sessions (all except the most recent one)

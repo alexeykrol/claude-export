@@ -1,6 +1,6 @@
 {
   "name": "claude-export",
-  "version": "2.2.2",
+  "version": "2.3.0",
   "description": "Export Claude Code dialogs to project's .dialog/ folder with Git visibility control",
   "main": "dist/cli.js",
   "bin": {
@@ -9,6 +9,7 @@
   "files": [
     "dist",
     "public",
+    "html-viewer",
     "install.sh"
   ],
   "scripts": {

@@ -188,3 +188,9 @@ export declare function getExportedDialogsWithSummaries(targetProjectPath: strin
     summaryShort: string | null;
     summaryFull: string | null;
 }>;
+/**
+ * Generate static HTML viewer with embedded dialog data
+ * Creates index.html in dialog-viewer/ folder that can be opened directly in browser
+ * This folder is visible (not hidden) for easy sharing
+ */
+export declare function generateStaticHtml(targetProjectPath: string): string;

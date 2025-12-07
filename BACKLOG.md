@@ -1,7 +1,7 @@
 # Project Backlog
 
 **Project:** Claude Export
-**Version:** 2.2.2
+**Version:** 2.3.0
 **Last Updated:** 2025-12-06
 
 > **📋 Authoritative Source:** This is the SINGLE SOURCE OF TRUTH for:
@@ -16,12 +16,12 @@
 
 ## 📊 Project Status Overview
 
-**Current Phase:** Production (v2.2.2 released)
+**Current Phase:** Production (v2.3.0 released)
 **Active Sprint:** Bugfix & Stability Sprint
 **Completion:** 100% of MVP features + Critical bug fixes
 
 ### Quick Stats
-- ✅ **Completed:** 21 features
+- ✅ **Completed:** 22 features
 - 🚧 **In Progress:** 0 features
 - 📋 **Planned:** 5 enhancements
 - 🔴 **Blocked:** 0 features
@@ -131,6 +131,11 @@
   - Implemented: 2025-12-06
   - Files: `src/watcher.ts:325-338`
   - Notes: Initial export использует `exportNewSessions()` вместо обычного экспорта. Подхватывает ВСЕ неэкспортированные сессии, включая те, что с ошибками парсинга.
+
+- [x] **Static HTML Viewer** - Самодостаточный viewer для студентов/консьюмеров
+  - Implemented: 2025-12-06
+  - Files: `html-viewer/template.html`, `src/exporter.ts:833-919`
+  - Notes: Генерация в `dialog-viewer/index.html`. Все данные встроены как JSON. Не требует Node.js или сервера. Автообновление при каждом экспорте через watcher.
 
 ---
 
