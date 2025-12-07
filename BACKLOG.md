@@ -47,7 +47,7 @@
   - Files: `src/gitignore.ts`
   - Notes: По умолчанию приватно, toggle через UI
 
-- [x] **CLI Interface** - Команды init, watch, ui, export, list, tasks
+- [x] **CLI Interface** - Команды init, watch, ui, export, list
   - Implemented: 2025-12-04
   - Files: `src/cli.ts`
   - Notes: Полный CLI с опциями --port, --verbose
@@ -87,10 +87,6 @@
   - Files: `src/server.ts`
   - Notes: /api/project, /api/sessions, /api/dialogs, etc.
 
-- [x] **Pending Tasks System** - Система задач для саммари
-  - Implemented: 2025-12-05
-  - Files: `src/exporter.ts:549-602`
-  - Notes: JSON файлы в .dialog/.pending/
 
 - [x] **Two-Level Summary System** - Двухуровневые саммари (SHORT + FULL)
   - Implemented: 2025-12-05
@@ -220,10 +216,10 @@
 ## 📚 Documentation Tasks
 
 - [x] **README.md** - Полная документация
-- [x] **PROJECT_INTAKE.md** - Описание проекта
 - [x] **BACKLOG.md** - Этот файл
 - [x] **ARCHITECTURE.md** - Архитектура
 - [x] **SECURITY.md** - Безопасность
+- [x] **PROCESS.md** - Процессы разработки
 - [x] **CHANGELOG.md** - История изменений
 
 ---
@@ -263,16 +259,15 @@
 **Status:** ✅ Completed
 
 #### Completed Tasks
-- [x] Создать PROJECT_INTAKE.md
 - [x] Создать BACKLOG.md
 - [x] Создать PROJECT_SNAPSHOT.md
 - [x] Создать ARCHITECTURE.md
 - [x] Создать SECURITY.md
-- [x] Создать WORKFLOW.md
 - [x] Создать PROCESS.md
 - [x] Создать CHANGELOG.md
 - [x] Добавить .claude/commands/
 - [x] Обновить CLAUDE.md
+- [x] Обновить README.md (полная документация)
 
 ---
 

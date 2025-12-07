@@ -226,7 +226,7 @@ npm run build
 | Файл | Назначение |
 |------|-----------|
 | PROJECT_SNAPSHOT.md | Быстрый обзор для Cold Start |
-| PROJECT_INTAKE.md | Полное описание проекта |
+| README.md | Полное описание проекта |
 | BACKLOG.md | Задачи и статус |
 | ARCHITECTURE.md | Структура и решения |
 | SECURITY.md | Безопасность |
