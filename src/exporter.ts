@@ -1,6 +1,6 @@
 /**
  * Exporter - Convert Claude Code JSONL sessions to Markdown
- * Saves dialogs to .dialog/ folder inside the target project
+ * Saves dialogs to dialog/ folder inside the target project
  */
 
 import * as fs from 'fs';
@@ -368,9 +368,9 @@ export function toMarkdown(messages: Message[], session: SessionInfo): string {
 }
 
 /**
- * Export session to markdown file in target project's .dialog/ folder
+ * Export session to markdown file in target project's dialog/ folder
  * @param session - Session info
- * @param targetProjectPath - Real path to target project (where .dialog/ will be created)
+ * @param targetProjectPath - Real path to target project (where dialog/ will be created)
  * @returns ExportedSession info
  */
 export function exportSession(session: SessionInfo, targetProjectPath: string): ExportedSession {
@@ -427,7 +427,7 @@ export function exportSession(session: SessionInfo, targetProjectPath: string): 
 }
 
 /**
- * Get list of exported dialogs in project's .dialog/ folder
+ * Get list of exported dialogs in project's dialog/ folder
  */
 export function getExportedDialogs(targetProjectPath: string): DialogInfo[] {
   const dialogFiles = getDialogFiles(targetProjectPath);

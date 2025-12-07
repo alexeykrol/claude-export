@@ -1,6 +1,6 @@
 /**
  * Watcher - Background daemon that monitors Claude Code sessions
- * for a specific project and exports dialogs to .dialog/ folder
+ * for a specific project and exports dialogs to dialog/ folder
  */
 export interface WatcherOptions {
     verbose?: boolean;

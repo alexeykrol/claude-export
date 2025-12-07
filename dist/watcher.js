@@ -1,7 +1,7 @@
 "use strict";
 /**
  * Watcher - Background daemon that monitors Claude Code sessions
- * for a specific project and exports dialogs to .dialog/ folder
+ * for a specific project and exports dialogs to dialog/ folder
  */
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -101,7 +101,7 @@ function requestSummary(dialogPath, verbose = false, isFinal = false) {
 Создай ДВА саммари на русском:
 
 1. КОРОТКОЕ - одно предложение с конкретикой (файлы/функции/модули)
-   Пример: "Добавлен watcher для автоэкспорта диалогов в .dialog/"
+   Пример: "Добавлен watcher для автоэкспорта диалогов в dialog/"
 
 2. ПОЛНОЕ - 2-3 предложения с деталями и техническими решениями
 
@@ -256,7 +256,7 @@ class SessionWatcher {
                 }
             }
             activeSessionPerProject.set(projectDir, sessionId);
-            // Export to target project's .dialog/ folder
+            // Export to target project's dialog/ folder
             const result = (0, exporter_1.exportSession)(session, this.targetProjectPath);
             this.log(`Exported: ${path.basename(result.markdownPath)} (${session.messageCount} messages)`);
             // Regenerate static HTML viewer
@@ -380,7 +380,7 @@ class SessionWatcher {
         });
         this.isRunning = true;
         this.log('Watcher started. Press Ctrl+C to stop.');
-        this.log('New and updated sessions will be automatically exported to .dialog/');
+        this.log('New and updated sessions will be automatically exported to dialog/');
     }
     async stop() {
         if (this.watcher) {

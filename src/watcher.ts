@@ -1,6 +1,6 @@
 /**
  * Watcher - Background daemon that monitors Claude Code sessions
- * for a specific project and exports dialogs to .dialog/ folder
+ * for a specific project and exports dialogs to dialog/ folder
  */
 
 import * as chokidar from 'chokidar';
@@ -87,7 +87,7 @@ function requestSummary(dialogPath: string, verbose: boolean = false, isFinal: b
 Создай ДВА саммари на русском:
 
 1. КОРОТКОЕ - одно предложение с конкретикой (файлы/функции/модули)
-   Пример: "Добавлен watcher для автоэкспорта диалогов в .dialog/"
+   Пример: "Добавлен watcher для автоэкспорта диалогов в dialog/"
 
 2. ПОЛНОЕ - 2-3 предложения с деталями и техническими решениями
 
@@ -279,7 +279,7 @@ export class SessionWatcher {
       }
       activeSessionPerProject.set(projectDir, sessionId);
 
-      // Export to target project's .dialog/ folder
+      // Export to target project's dialog/ folder
       const result = exportSession(session, this.targetProjectPath);
 
       this.log(`Exported: ${path.basename(result.markdownPath)} (${session.messageCount} messages)`);
@@ -424,7 +424,7 @@ export class SessionWatcher {
 
     this.isRunning = true;
     this.log('Watcher started. Press Ctrl+C to stop.');
-    this.log('New and updated sessions will be automatically exported to .dialog/');
+    this.log('New and updated sessions will be automatically exported to dialog/');
   }
 
   async stop(): Promise<void> {

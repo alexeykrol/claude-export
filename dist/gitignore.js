@@ -52,7 +52,7 @@ exports.getDialogFolder = getDialogFolder;
 exports.getDialogFiles = getDialogFiles;
 const fs = __importStar(require("fs"));
 const path = __importStar(require("path"));
-const DIALOG_FOLDER = '.dialog';
+const DIALOG_FOLDER = 'dialog';
 /**
  * Get path to .gitignore in project
  */

@@ -6,7 +6,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
-const DIALOG_FOLDER = '.dialog';
+const DIALOG_FOLDER = 'dialog';
 
 /**
  * Get path to .gitignore in project
