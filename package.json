@@ -9,8 +9,7 @@
   "files": [
     "dist",
     "public",
-    "html-viewer",
-    "install.sh"
+    "html-viewer"
   ],
   "scripts": {
     "build": "tsc",
