@@ -756,11 +756,11 @@ function getTemplatePath(): string {
 
 /**
  * Generate static HTML viewer with embedded dialog data
- * Creates index.html in dialog-viewer/ folder that can be opened directly in browser
+ * Creates index.html in html-viewer/ folder that can be opened directly in browser
  * This folder is visible (not hidden) for easy sharing
  */
 export function generateStaticHtml(targetProjectPath: string): string {
-  const viewerFolder = path.join(targetProjectPath, 'dialog-viewer');
+  const viewerFolder = path.join(targetProjectPath, 'html-viewer');
 
   // Ensure folder exists
   if (!fs.existsSync(viewerFolder)) {
