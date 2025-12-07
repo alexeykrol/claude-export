@@ -55,7 +55,7 @@
 
 ### Этап 3: Never Unless Asked
 
-- WORKFLOW.md, PROCESS.md — только по запросу
+- PROCESS.md — только по запросу
 - CHANGELOG.md — только при релизе
 
 ---
@@ -66,7 +66,7 @@
 
 ```
 src/
-├── cli.ts         # CLI интерфейс (init, watch, ui, export, list, tasks)
+├── cli.ts         # CLI интерфейс (init, watch, ui, export, list)
 ├── exporter.ts    # JSONL → Markdown конвертация
 ├── server.ts      # Express API для веб-интерфейса
 ├── watcher.ts     # Chokidar file watching
@@ -144,8 +144,8 @@ git log --oneline -n 10
 
 ### Хранение данных
 - **Source:** `~/.claude/projects/` (Claude Code сессии)
-- **Output:** `.dialog/` (Markdown файлы)
-- **Viewer:** `dialog-viewer/index.html` (для студентов)
+- **Output:** `dialog/` (Markdown файлы)
+- **Viewer:** `html-viewer/index.html` (для студентов)
 - **Visibility:** `.gitignore` entries
 
 ### API Endpoints (server.ts)
@@ -162,9 +162,9 @@ GET  /api/search?q=query    # Поиск
 ~/.claude/projects/*.jsonl
     → Chokidar detect change
     → Debounce 2s
-    → Export to .dialog/
+    → Export to dialog/
     → Add to .gitignore
-    → Schedule summary (30s)
+    → Schedule summary (30min)
 ```
 
 ---
@@ -230,7 +230,7 @@ npm run build
 | BACKLOG.md | Задачи и статус |
 | ARCHITECTURE.md | Структура и решения |
 | SECURITY.md | Безопасность |
-| WORKFLOW.md | Процессы разработки |
+| PROCESS.md | Процессы разработки |
 | CHANGELOG.md | История изменений |
 
 ---

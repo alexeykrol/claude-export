@@ -75,7 +75,7 @@ claude-export/
 ├── node_modules/            # Dependencies
 ├── package.json             # npm configuration
 ├── tsconfig.json            # TypeScript configuration
-├── install.sh               # Installation script
+├── release/install.sh       # Installation script
 └── README.md                # User documentation
 ```
 
@@ -131,9 +131,8 @@ export function exportSession(session, targetProjectPath) {
 - ✅ Transparency — пользователь видит все файлы
 
 **Data storage:**
-- Dialogs: `.dialog/*.md` files
+- Dialogs: `dialog/*.md` files
 - Visibility: `.gitignore` entries
-- Pending tasks: `.dialog/.pending/*.json`
 
 ---
 
@@ -172,7 +171,6 @@ watch [path]    → startWatcher() # Background auto-export
 ui [path]       → startServer()  # Web interface
 export [path]   → runExport()    # One-time export
 list [path]     → showList()     # Show sessions
-tasks [path]    → showTasks()    # Show pending summaries
 ```
 
 **Options:**
@@ -202,7 +200,7 @@ Message[]
     ↓ toMarkdown()
 Markdown string
     ↓ fs.writeFileSync()
-.dialog/YYYY-MM-DD_session-*.md
+dialog/YYYY-MM-DD_session-*.md
 ```
 
 ---
@@ -241,7 +239,7 @@ Chokidar watcher
     ↓ on('change')
 Debounce (2s)
     ↓
-Export to .dialog/
+Export to dialog/
     ↓
 Schedule summary (30s)
     ↓
@@ -270,7 +268,7 @@ isPublic(file, project)            // Check state
 
 **Pattern:**
 - Section header: `# Claude dialogs`
-- Entries: `.dialog/YYYY-MM-DD_session-*.md`
+- Entries: `dialog/YYYY-MM-DD_session-*.md`
 
 ---
 
@@ -288,7 +286,7 @@ User runs: npm run dialog:export
     ├── For each new session:
     │   ├── parseSession() → Message[]
     │   ├── toMarkdown() → string
-    │   ├── Write to .dialog/
+    │   ├── Write to dialog/
     │   └── addToGitignore()
     │
     └── Output: "Exported N sessions"
@@ -391,7 +389,7 @@ import { toggleVisibility } from './gitignore';
 - **BACKLOG.md** — Current tasks and status
 - **PROJECT_SNAPSHOT.md** — Quick project overview
 - **SECURITY.md** — Security guidelines
-- **WORKFLOW.md** — Development processes
+- **PROCESS.md** — Development processes
 
 ---
 
