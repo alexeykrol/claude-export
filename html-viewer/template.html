@@ -369,6 +369,98 @@
       background: var(--text-muted);
     }
 
+    /* Modal */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-overlay.show {
+      display: flex;
+    }
+
+    .modal {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      width: 700px;
+      max-width: 90vw;
+      max-height: 80vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .modal-header {
+      padding: 16px 20px;
+      background: var(--bg-tertiary);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-title {
+      font-size: 1.2rem;
+      color: var(--accent);
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      font-size: 1.5rem;
+      cursor: pointer;
+      padding: 0 8px;
+    }
+
+    .modal-close:hover {
+      color: var(--text-primary);
+    }
+
+    .modal-body {
+      padding: 20px;
+      overflow-y: auto;
+      font-size: 1.1rem;
+      line-height: 1.8;
+    }
+
+    .modal-body h3 {
+      color: var(--accent);
+      margin: 16px 0 8px 0;
+      font-size: 1.15rem;
+    }
+
+    .modal-body h3:first-child {
+      margin-top: 0;
+    }
+
+    .modal-body ul {
+      margin: 0;
+      padding-left: 1.5rem;
+    }
+
+    .modal-body li {
+      margin: 6px 0;
+    }
+
+    .modal-body a {
+      color: #4a9eff;
+      text-decoration: none;
+    }
+
+    .modal-body a:hover {
+      text-decoration: underline;
+    }
+
     /* Responsive */
     @media (max-width: 1200px) {
       .layout {
@@ -391,26 +483,18 @@
       }
     }
 
-    .read-only-badge {
-      font-size: 0.85rem;
-      padding: 3px 8px;
-      background: var(--bg-tertiary);
-      border-radius: 4px;
-      color: var(--text-muted);
-    }
-  </style>
+    </style>
 </head>
 <body>
   <div class="container">
     <header>
       <div class="header-top">
-        <h1>Claude Export <span style="font-weight: 400; font-size: 1rem; color: #888;">__VERSION__ · __DATETIME__</span></h1>
+        <h1>Claude Export <span style="font-weight: 400; font-size: 1rem; color: #888;">__VERSION__ · __DATETIME__</span> <span style="font-weight: 400; font-size: 1rem; color: #aaa; margin-left: 20px;" id="stats">Loading...</span></h1>
         <div class="header-controls">
           <input type="text" class="search-box" id="searchBox" placeholder="Search dialogs...">
-          <span class="read-only-badge">Read-only viewer</span>
+          <button class="btn btn-secondary" onclick="showHelp()" title="Help">?</button>
         </div>
       </div>
-      <div class="stats" id="stats">Loading...</div>
     </header>
 
     <div class="layout">
@@ -441,10 +525,42 @@
     </div>
 
     <footer style="text-align: center; padding: 1rem 0.5rem 1.5rem; color: #888; font-size: 1.1rem;">
-      __PROJECT_NAME__ ·
-      <a href="https://github.com/alexeykrol/claude-export" target="_blank" style="color: #4a9eff; text-decoration: none;">GitHub</a> ·
-      Generated with Claude Export
+      © Alex Krol 2025 ·
+      <a href="https://github.com/alexeykrol" target="_blank" style="color: #4a9eff; text-decoration: none;">GitHub</a> ·
+      <a href="https://facebook.com/alexeykrol" target="_blank" style="color: #4a9eff; text-decoration: none;">Facebook</a> ·
+      <a href="https://linkedin.com/in/alexeykrol" target="_blank" style="color: #4a9eff; text-decoration: none;">LinkedIn</a>
     </footer>
+  </div>
+
+  <!-- Help Modal -->
+  <div class="modal-overlay" id="helpModal" onclick="closeHelp(event)">
+    <div class="modal" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <span class="modal-title">Claude Export — Помощь</span>
+        <button class="modal-close" onclick="closeHelp()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <h3>📋 Навигация</h3>
+        <ul>
+          <li>Выберите диалог в левой панели для просмотра</li>
+          <li>Используйте поиск для фильтрации по содержимому</li>
+          <li>Кнопка "↓ Last" — перейти к последнему сообщению</li>
+        </ul>
+
+        <h3>📁 Структура</h3>
+        <ul>
+          <li>Диалоги экспортированы из Claude Code сессий</li>
+          <li>Каждый диалог содержит историю общения с AI</li>
+          <li>Формат: Markdown с подсветкой User/Assistant</li>
+        </ul>
+
+        <h3>🔗 Ссылки</h3>
+        <ul>
+          <li><a href="https://github.com/alexeykrol/claude-export" target="_blank">GitHub — исходный код и документация</a></li>
+          <li><a href="https://claude.ai" target="_blank">Claude AI — официальный сайт</a></li>
+        </ul>
+      </div>
+    </div>
   </div>
 
   <script>
@@ -560,12 +676,7 @@
             data-index="${index}"
             onclick="selectDialog(${index})">
           <div class="item-row-top">
-            <div class="item-row-top-left">
-              <span class="item-date">${formatDateTime(d.sessionDateTime, d.date)}</span>
-              <span class="visibility-badge ${d.isPublic ? 'public' : 'private'}">
-                ${d.isPublic ? 'Public' : 'Private'}
-              </span>
-            </div>
+            <span class="item-date">${formatDateTime(d.sessionDateTime, d.date)}</span>
             <span class="item-meta">${d.size || ''}</span>
           </div>
           <div class="item-row-bottom">
@@ -655,6 +766,23 @@
       div.textContent = text;
       return div.innerHTML;
     }
+
+    function showHelp() {
+      document.getElementById('helpModal').classList.add('show');
+    }
+
+    function closeHelp(event) {
+      if (!event || event.target === event.currentTarget) {
+        document.getElementById('helpModal').classList.remove('show');
+      }
+    }
+
+    // Close modal on Escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeHelp();
+      }
+    });
   </script>
 </body>
 </html>

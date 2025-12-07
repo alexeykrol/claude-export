@@ -20,11 +20,12 @@ import {
   exportNewSessions,
   getExportedDialogs,
   getPendingTasks,
-  PROJECTS_DIR
+  PROJECTS_DIR,
+  generateStaticHtml
 } from './exporter';
 import { getDialogFolder, ensureDialogFolder, addToGitignore } from './gitignore';
 
-const VERSION = '2.2.2';
+const VERSION = '2.3.0';
 
 function showHelp(): void {
   console.log(`
@@ -165,11 +166,19 @@ async function runExport(projectPath: string): Promise<void> {
   if (newExports.length === 0) {
     console.log('All sessions already exported.');
   } else {
-    console.log(`\nExported ${newExports.length} new sessions to ${dialogFolder}`);
+    console.log(`Exported ${newExports.length} new sessions to ${dialogFolder}`);
+  }
+
+  // Generate static HTML viewer
+  try {
+    const htmlPath = generateStaticHtml(projectPath);
+    console.log(`Generated: ${htmlPath}`);
+  } catch (err) {
+    console.error(`Warning: Could not generate HTML viewer: ${err}`);
   }
 
   console.log('\nNote: New dialogs are added to .gitignore by default (private)');
-  console.log('Use "claude-export ui" to manage visibility.');
+  console.log('Use "npm run dialog:ui" to manage visibility.');
 }
 
 async function runInit(projectPath: string): Promise<void> {

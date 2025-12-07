@@ -15,11 +15,9 @@
   "scripts": {
     "build": "tsc",
     "dev": "ts-node src/cli.ts",
-    "watch": "ts-node src/cli.ts watch",
-    "ui": "ts-node src/cli.ts ui",
     "start": "node dist/cli.js",
     "prepublishOnly": "npm run build",
-    "dialog:watch": "node .claude-export/dist/cli.js watch",
+    "dialog:export": "node .claude-export/dist/cli.js export",
     "dialog:ui": "node .claude-export/dist/cli.js ui",
     "dialog:list": "node .claude-export/dist/cli.js list"
   },

@@ -2,8 +2,8 @@
 
 > Этот файл автоматически загружается в контекст каждой сессии Claude Code
 
-**Проект:** Claude Export v2.1.0
-**Назначение:** Экспорт диалогов Claude Code в Markdown с управлением видимостью
+**Проект:** Claude Export v2.3.0
+**Назначение:** Экспорт диалогов Claude Code для студентов (Producer → Consumer)
 
 ---
 
@@ -23,9 +23,9 @@
    - `SECURITY.md` - правила безопасности
 
 3. ✅ **Краткий анализ:**
-   - Проект: CLI утилита для экспорта диалогов Claude Code
-   - Стек: TypeScript, Node.js 18+, Express, Chokidar
-   - Статус: MVP завершён (v2.1.0)
+   - Проект: Экспорт диалогов Claude Code для студентов
+   - Стек: TypeScript, Node.js 18+, Express
+   - Статус: Production (v2.3.0)
 
 4. ✅ **Задай 2-3 КРИТИЧНЫХ вопроса:**
    - Что хотите делать: новую фичу, исправить баг, или документацию?
@@ -91,10 +91,17 @@ npm run dev            # Запуск через ts-node
 
 ### Использование (в целевом проекте)
 ```bash
-npm run dialog:ui      # Веб-интерфейс на :3333
-npm run dialog:watch   # Автоматический экспорт
+npm run dialog:export  # Экспорт всех сессий + генерация HTML
+npm run dialog:ui      # Веб-интерфейс (опционально)
 npm run dialog:list    # Список сессий
-npm run dialog:export  # Одноразовый экспорт
+```
+
+### Протокол завершения спринта
+При команде "Завершить спринт" — читай PROCESS.md и выполняй:
+```bash
+npm run dialog:export   # 1. Экспорт диалогов
+# 2. Обновить BACKLOG.md, PROJECT_SNAPSHOT.md, CHANGELOG.md
+git add . && git commit && git push  # 3. Коммит и пуш
 ```
 
 ### Git
@@ -137,7 +144,8 @@ git log --oneline -n 10
 
 ### Хранение данных
 - **Source:** `~/.claude/projects/` (Claude Code сессии)
-- **Output:** `.dialog/` (экспортированные Markdown)
+- **Output:** `.dialog/` (Markdown файлы)
+- **Viewer:** `dialog-viewer/index.html` (для студентов)
 - **Visibility:** `.gitignore` entries
 
 ### API Endpoints (server.ts)
@@ -191,6 +199,7 @@ npm run build
 - `/refactor` — рефакторинг
 - `/optimize` — оптимизация
 - `/commit` — создать commit
+- `/ui` — Web UI для диалогов (опционально)
 
 ---
 
@@ -226,5 +235,5 @@ npm run build
 
 ---
 
-*Последнее обновление: 2025-12-05*
-*Version: 2.1.0*
+*Последнее обновление: 2025-12-06*
+*Version: 2.3.0*
