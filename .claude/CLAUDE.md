@@ -73,9 +73,13 @@ If significant changes:
 - `.claude/ARCHITECTURE.md` — if architecture changed
 - This file — if instructions changed
 
-### 4. Export Dialogs
+### 4. Export Dialogs (to BOTH projects)
 ```bash
+# Export to current project
 npm run dialog:export
+
+# Export to Project_init (for students)
+node dist/cli.js export --output /Users/alexeykrolmini/Downloads/Code/Project_init
 ```
 
 ### 5. Git Commit

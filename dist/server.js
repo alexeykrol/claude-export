@@ -402,13 +402,15 @@ app.get('/api/search', (req, res) => {
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, '..', 'src', 'public', 'index.html'));
 });
-function startServer(port = 3333, projectPath) {
+function startServer(port = 3333, projectPath, outputDir) {
     if (projectPath) {
         currentProjectPath = path.resolve(projectPath);
     }
-    const dialogFolder = (0, gitignore_1.getDialogFolder)(currentProjectPath);
-    // Start watcher for automatic export
-    watcher = new watcher_1.SessionWatcher(currentProjectPath);
+    // Output path can be different from source project
+    const outputPath = outputDir ? path.resolve(outputDir) : currentProjectPath;
+    const dialogFolder = (0, gitignore_1.getDialogFolder)(outputPath);
+    // Start watcher for automatic export (with optional outputDir)
+    watcher = new watcher_1.SessionWatcher(currentProjectPath, { outputDir });
     watcher.start();
     app.listen(port, () => {
         console.log('');
@@ -416,14 +418,17 @@ function startServer(port = 3333, projectPath) {
         console.log('  Claude Export UI + Auto-Watch');
         console.log('═'.repeat(60));
         console.log(`  URL:      http://localhost:${port}`);
-        console.log(`  Project:  ${currentProjectPath}`);
+        console.log(`  Source:   ${currentProjectPath}`);
+        if (outputDir) {
+            console.log(`  Output:   ${outputPath}`);
+        }
         console.log(`  Dialogs:  ${dialogFolder}`);
         console.log(`  Watch:    Active (auto-export enabled)`);
         console.log('═'.repeat(60));
         console.log('');
         console.log('Press Ctrl+C to stop');
         // Check for dialogs without summaries and signal Claude
-        const dialogs = (0, exporter_1.getExportedDialogsWithSummaries)(currentProjectPath);
+        const dialogs = (0, exporter_1.getExportedDialogsWithSummaries)(outputPath);
         const withoutSummary = dialogs.filter(d => !d.summary);
         if (withoutSummary.length > 0) {
             console.log('');

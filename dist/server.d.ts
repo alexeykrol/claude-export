@@ -4,5 +4,5 @@
  */
 import { Application } from 'express';
 declare const app: Application;
-export declare function startServer(port?: number, projectPath?: string): void;
+export declare function startServer(port?: number, projectPath?: string, outputDir?: string): void;
 export default app;
