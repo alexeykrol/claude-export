@@ -72,7 +72,6 @@ Arguments:
 
 Options:
   --port <number>    Port for UI server (default: 3333)
-  --output <path>    Export to different directory (keep session source)
   --verbose, -v      Enable verbose logging for watcher
 
 Examples:
@@ -238,10 +237,6 @@ async function main() {
             options.port = args[i + 1];
             i++;
         }
-        else if (args[i] === '--output' && args[i + 1]) {
-            options.output = path.resolve(args[i + 1]);
-            i++;
-        }
         else if (args[i] === '--verbose' || args[i] === '-v') {
             options.verbose = true;
         }
@@ -257,16 +252,13 @@ async function main() {
             break;
         case 'watch':
         case 'w':
-            await (0, watcher_1.startWatcher)(projectPath, {
-                verbose: options.verbose,
-                outputDir: options.output
-            });
+            await (0, watcher_1.startWatcher)(projectPath, { verbose: options.verbose });
             break;
         case 'ui':
         case 'server':
         case 'u':
             const port = parseInt(options.port) || 3333;
-            (0, server_1.startServer)(port, projectPath, options.output);
+            (0, server_1.startServer)(port, projectPath);
             break;
         case 'export':
         case 'e':

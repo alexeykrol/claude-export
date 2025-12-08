@@ -489,18 +489,15 @@ export function getExportedPath(sessionId: string, targetProjectPath: string): s
 
 /**
  * Export all new sessions for a project
- * @param targetProjectPath - source project for Claude sessions
- * @param outputDir - optional different output directory for exports
  */
-export function exportNewSessions(targetProjectPath: string, outputDir?: string): ExportedSession[] {
+export function exportNewSessions(targetProjectPath: string): ExportedSession[] {
   const sessions = getProjectSessions(targetProjectPath);
-  const exportPath = outputDir || targetProjectPath;
   const newExports: ExportedSession[] = [];
 
   for (const session of sessions) {
-    if (!isSessionExported(session.id, exportPath)) {
+    if (!isSessionExported(session.id, targetProjectPath)) {
       try {
-        const result = exportSession(session, exportPath);
+        const result = exportSession(session, targetProjectPath);
         newExports.push(result);
         console.log(`Exported: ${path.basename(result.markdownPath)}`);
       } catch (err) {

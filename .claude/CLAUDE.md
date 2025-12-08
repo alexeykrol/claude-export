@@ -1,6 +1,6 @@
 # CLAUDE.md — AI Agent Instructions
 
-**Project:** Claude Export v2.3.0
+**Project:** Claude Export v2.4.0
 **Purpose:** Export Claude Code dialogs for students (Producer → Consumer)
 
 ## Triggers
@@ -41,7 +41,7 @@ Read `SNAPSHOT.md` — current project state
 
 ```
 Context loaded. Directory: [pwd]
-Project: Claude Export v2.3.0 (production)
+Project: Claude Export v2.4.0 (production)
 ```
 
 ## Completion Protocol
@@ -73,13 +73,9 @@ If significant changes:
 - `.claude/ARCHITECTURE.md` — if architecture changed
 - This file — if instructions changed
 
-### 4. Export Dialogs (to BOTH projects)
+### 4. Export Dialogs
 ```bash
-# Export to current project
 npm run dialog:export
-
-# Export to Project_init (for students)
-node dist/cli.js export --output /Users/alexeykrolmini/Downloads/Code/Project_init
 ```
 
 ### 5. Git Commit
@@ -208,4 +204,4 @@ Available in `.claude/commands/`:
 **UI won't open:** Port 3333 busy? Use `--port`
 
 ---
-*Version: 2.3.0 | Updated: 2025-12-07*
+*Version: 2.4.0 | Updated: 2025-12-07*

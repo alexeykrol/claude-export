@@ -5,18 +5,14 @@
 export interface WatcherOptions {
     verbose?: boolean;
     debounceMs?: number;
-    outputDir?: string;
 }
 export declare class SessionWatcher {
     private watcher;
     private options;
     private isRunning;
     private targetProjectPath;
-    private outputProjectPath;
     private claudeProjectDir;
     constructor(targetProjectPath: string, options?: WatcherOptions);
-    /** Get effective output directory (for exports) */
-    getOutputPath(): string;
     private log;
     private debug;
     private findDialogPath;

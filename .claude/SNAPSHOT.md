@@ -4,7 +4,7 @@
 
 ## Status
 
-**Version:** v2.3.0 (Production)
+**Version:** v2.4.0 (Production)
 **Progress:** 100%
 
 All phases completed:

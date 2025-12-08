@@ -445,17 +445,15 @@ app.get('*', (req: Request, res: Response) => {
   res.sendFile(path.join(__dirname, '..', 'src', 'public', 'index.html'));
 });
 
-export function startServer(port: number = 3333, projectPath?: string, outputDir?: string): void {
+export function startServer(port: number = 3333, projectPath?: string): void {
   if (projectPath) {
     currentProjectPath = path.resolve(projectPath);
   }
 
-  // Output path can be different from source project
-  const outputPath = outputDir ? path.resolve(outputDir) : currentProjectPath;
-  const dialogFolder = getDialogFolder(outputPath);
+  const dialogFolder = getDialogFolder(currentProjectPath);
 
-  // Start watcher for automatic export (with optional outputDir)
-  watcher = new SessionWatcher(currentProjectPath, { outputDir });
+  // Start watcher for automatic export
+  watcher = new SessionWatcher(currentProjectPath);
   watcher.start();
 
   app.listen(port, () => {
@@ -464,10 +462,7 @@ export function startServer(port: number = 3333, projectPath?: string, outputDir
     console.log('  Claude Export UI + Auto-Watch');
     console.log('═'.repeat(60));
     console.log(`  URL:      http://localhost:${port}`);
-    console.log(`  Source:   ${currentProjectPath}`);
-    if (outputDir) {
-      console.log(`  Output:   ${outputPath}`);
-    }
+    console.log(`  Project:  ${currentProjectPath}`);
     console.log(`  Dialogs:  ${dialogFolder}`);
     console.log(`  Watch:    Active (auto-export enabled)`);
     console.log('═'.repeat(60));
@@ -475,7 +470,7 @@ export function startServer(port: number = 3333, projectPath?: string, outputDir
     console.log('Press Ctrl+C to stop');
 
     // Check for dialogs without summaries and signal Claude
-    const dialogs = getExportedDialogsWithSummaries(outputPath);
+    const dialogs = getExportedDialogsWithSummaries(currentProjectPath);
     const withoutSummary = dialogs.filter(d => !d.summary);
 
     if (withoutSummary.length > 0) {

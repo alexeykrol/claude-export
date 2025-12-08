@@ -1,7 +1,7 @@
 # Project Backlog
 
 **Project:** Claude Export
-**Version:** 2.3.0
+**Version:** 2.4.0
 **Last Updated:** 2025-12-07
 
 > **📋 Authoritative Source:** This is the SINGLE SOURCE OF TRUTH for:
@@ -16,8 +16,8 @@
 
 ## 📊 Project Status Overview
 
-**Current Phase:** Production (v2.3.0 released)
-**Active Sprint:** Bugfix & Stability Sprint
+**Current Phase:** Production (v2.4.0 released)
+**Active Sprint:** None (Production ready)
 **Completion:** 100% of MVP features + Critical bug fixes
 
 ### Quick Stats
@@ -240,11 +240,11 @@
 
 ## 📋 Sprint Planning
 
-### Current Sprint: AI Framework v2.0
+### Previous Sprint: AI Framework v2.0
 **Duration:** 2025-12-07
-**Goal:** Рефакторинг AI documentation structure, cleanup проекта
+**Status:** ✅ Completed
 
-#### Sprint Backlog
+#### Completed Tasks
 - [x] Merge CLAUDE.md + COMPLETION_PROTOCOL.md + SECURITY.md → single CLAUDE.md
 - [x] Rename PROJECT_SNAPSHOT.md → SNAPSHOT.md
 - [x] Reduce .claude/ from 6 to 4 files

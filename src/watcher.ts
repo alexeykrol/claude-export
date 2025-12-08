@@ -143,7 +143,6 @@ function requestSummary(dialogPath: string, verbose: boolean = false, isFinal: b
 export interface WatcherOptions {
   verbose?: boolean;
   debounceMs?: number;
-  outputDir?: string; // Export to different directory while reading from source project
 }
 
 export class SessionWatcher {
@@ -151,24 +150,15 @@ export class SessionWatcher {
   private options: WatcherOptions;
   private isRunning = false;
   private targetProjectPath: string;
-  private outputProjectPath: string; // Where to export dialogs
   private claudeProjectDir: string | null = null;
 
   constructor(targetProjectPath: string, options: WatcherOptions = {}) {
     this.targetProjectPath = path.resolve(targetProjectPath);
-    this.outputProjectPath = options.outputDir
-      ? path.resolve(options.outputDir)
-      : this.targetProjectPath;
     this.options = {
       verbose: false,
       debounceMs: DEBOUNCE_MS,
       ...options
     };
-  }
-
-  /** Get effective output directory (for exports) */
-  getOutputPath(): string {
-    return this.outputProjectPath;
   }
 
   private log(message: string): void {
@@ -183,7 +173,7 @@ export class SessionWatcher {
   }
 
   private findDialogPath(sessionId: string): string | null {
-    const dialogFolder = getDialogFolder(this.outputProjectPath);
+    const dialogFolder = getDialogFolder(this.targetProjectPath);
     if (!fs.existsSync(dialogFolder)) {
       return null;
     }
@@ -289,14 +279,14 @@ export class SessionWatcher {
       }
       activeSessionPerProject.set(projectDir, sessionId);
 
-      // Export to output project's dialog/ folder
-      const result = exportSession(session, this.outputProjectPath);
+      // Export to target project's dialog/ folder
+      const result = exportSession(session, this.targetProjectPath);
 
       this.log(`Exported: ${path.basename(result.markdownPath)} (${session.messageCount} messages)`);
 
       // Regenerate static HTML viewer
       try {
-        generateStaticHtml(this.outputProjectPath);
+        generateStaticHtml(this.targetProjectPath);
         this.log('Updated index.html');
       } catch (err) {
         // Non-fatal error - just log
@@ -333,13 +323,10 @@ export class SessionWatcher {
     }
 
     const claudeProjectPath = path.join(PROJECTS_DIR, this.claudeProjectDir);
-    const dialogFolder = ensureDialogFolder(this.outputProjectPath);
+    const dialogFolder = ensureDialogFolder(this.targetProjectPath);
 
     this.log('Starting Claude Export Watcher...');
-    this.log(`Source project: ${this.targetProjectPath}`);
-    if (this.outputProjectPath !== this.targetProjectPath) {
-      this.log(`Output project: ${this.outputProjectPath}`);
-    }
+    this.log(`Project: ${this.targetProjectPath}`);
     this.log(`Claude sessions: ${claudeProjectPath}`);
     this.log(`Dialogs folder: ${dialogFolder}`);
     this.log('');
@@ -348,8 +335,7 @@ export class SessionWatcher {
     this.log('Performing initial export...');
 
     // Use the same reliable logic as CLI export command
-    // Note: exportNewSessions needs both source (for sessions) and output (for dialogs)
-    const exported = exportNewSessions(this.targetProjectPath, this.outputProjectPath);
+    const exported = exportNewSessions(this.targetProjectPath);
 
     // Track file sizes for all sessions (including already exported ones)
     const sessions = getProjectSessions(this.targetProjectPath);
@@ -366,7 +352,7 @@ export class SessionWatcher {
 
     // Generate static HTML viewer
     try {
-      const htmlPath = generateStaticHtml(this.outputProjectPath);
+      const htmlPath = generateStaticHtml(this.targetProjectPath);
       this.log(`Generated: ${path.basename(htmlPath)}`);
     } catch (err) {
       this.log(`Warning: Could not generate index.html: ${err}`);

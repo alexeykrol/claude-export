@@ -153,18 +153,11 @@ class SessionWatcher {
         this.isRunning = false;
         this.claudeProjectDir = null;
         this.targetProjectPath = path.resolve(targetProjectPath);
-        this.outputProjectPath = options.outputDir
-            ? path.resolve(options.outputDir)
-            : this.targetProjectPath;
         this.options = {
             verbose: false,
             debounceMs: DEBOUNCE_MS,
             ...options
         };
-    }
-    /** Get effective output directory (for exports) */
-    getOutputPath() {
-        return this.outputProjectPath;
     }
     log(message) {
         const timestamp = new Date().toLocaleTimeString('ru-RU');
@@ -176,7 +169,7 @@ class SessionWatcher {
         }
     }
     findDialogPath(sessionId) {
-        const dialogFolder = (0, gitignore_1.getDialogFolder)(this.outputProjectPath);
+        const dialogFolder = (0, gitignore_1.getDialogFolder)(this.targetProjectPath);
         if (!fs.existsSync(dialogFolder)) {
             return null;
         }
@@ -263,12 +256,12 @@ class SessionWatcher {
                 }
             }
             activeSessionPerProject.set(projectDir, sessionId);
-            // Export to output project's dialog/ folder
-            const result = (0, exporter_1.exportSession)(session, this.outputProjectPath);
+            // Export to target project's dialog/ folder
+            const result = (0, exporter_1.exportSession)(session, this.targetProjectPath);
             this.log(`Exported: ${path.basename(result.markdownPath)} (${session.messageCount} messages)`);
             // Regenerate static HTML viewer
             try {
-                (0, exporter_1.generateStaticHtml)(this.outputProjectPath);
+                (0, exporter_1.generateStaticHtml)(this.targetProjectPath);
                 this.log('Updated index.html');
             }
             catch (err) {
@@ -300,20 +293,16 @@ class SessionWatcher {
             process.exit(1);
         }
         const claudeProjectPath = path.join(exporter_1.PROJECTS_DIR, this.claudeProjectDir);
-        const dialogFolder = (0, gitignore_1.ensureDialogFolder)(this.outputProjectPath);
+        const dialogFolder = (0, gitignore_1.ensureDialogFolder)(this.targetProjectPath);
         this.log('Starting Claude Export Watcher...');
-        this.log(`Source project: ${this.targetProjectPath}`);
-        if (this.outputProjectPath !== this.targetProjectPath) {
-            this.log(`Output project: ${this.outputProjectPath}`);
-        }
+        this.log(`Project: ${this.targetProjectPath}`);
         this.log(`Claude sessions: ${claudeProjectPath}`);
         this.log(`Dialogs folder: ${dialogFolder}`);
         this.log('');
         // Initial export of all sessions using robust exportNewSessions()
         this.log('Performing initial export...');
         // Use the same reliable logic as CLI export command
-        // Note: exportNewSessions needs both source (for sessions) and output (for dialogs)
-        const exported = (0, exporter_1.exportNewSessions)(this.targetProjectPath, this.outputProjectPath);
+        const exported = (0, exporter_1.exportNewSessions)(this.targetProjectPath);
         // Track file sizes for all sessions (including already exported ones)
         const sessions = (0, exporter_1.getProjectSessions)(this.targetProjectPath);
         for (const session of sessions) {
@@ -328,7 +317,7 @@ class SessionWatcher {
         }
         // Generate static HTML viewer
         try {
-            const htmlPath = (0, exporter_1.generateStaticHtml)(this.outputProjectPath);
+            const htmlPath = (0, exporter_1.generateStaticHtml)(this.targetProjectPath);
             this.log(`Generated: ${path.basename(htmlPath)}`);
         }
         catch (err) {

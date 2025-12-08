@@ -101,10 +101,8 @@ export declare function isSessionExported(sessionId: string, targetProjectPath: 
 export declare function getExportedPath(sessionId: string, targetProjectPath: string): string | null;
 /**
  * Export all new sessions for a project
- * @param targetProjectPath - source project for Claude sessions
- * @param outputDir - optional different output directory for exports
  */
-export declare function exportNewSessions(targetProjectPath: string, outputDir?: string): ExportedSession[];
+export declare function exportNewSessions(targetProjectPath: string): ExportedSession[];
 /**
  * Sync current active session (incremental update of the tail)
  * Finds the currently active JSONL file and appends missing messages to MD

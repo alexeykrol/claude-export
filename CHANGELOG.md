@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+---
+
+## [2.4.0] - 2025-12-07
+
+### Added
+- **/fi** slash command — Быстрый доступ к Completion Protocol из CLI
+
 ### Changed
 - **AI Framework v2.0** — Major refactoring of AI documentation structure
   - Merged CLAUDE.md + COMPLETION_PROTOCOL.md + SECURITY.md into single CLAUDE.md
@@ -27,9 +34,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Removed `scripts/` folder (ad-hoc build script)
   - Cleaned `release/`: single install.sh, regenerated archives
   - Updated server.ts paths for new structure
-
-### Added
-- **/fi** slash command for sprint completion protocol
 
 ---
 
@@ -188,6 +192,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 | Version | Date | Highlights |
 |---------|------|-----------|
+| 2.4.0 | 2025-12-07 | AI Framework v2.0, /fi command |
 | 2.3.0 | 2025-12-06 | Static HTML Viewer for students |
 | 2.2.2 | 2025-12-06 | Final summaries, duplicate fix |
 | 2.2.1 | 2025-12-05 | Force Sync button, timezone bug fix |
